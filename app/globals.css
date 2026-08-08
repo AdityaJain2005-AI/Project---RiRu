@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply min-h-screen bg-[#F7F8F9] text-zinc-900 antialiased;
+}
+
+::selection {
+  @apply bg-emerald-200/70 text-emerald-950;
+}

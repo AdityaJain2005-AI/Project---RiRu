@@ -27,7 +27,7 @@ async function migrate() {
     `);
     await client.query(`
       INSERT INTO greetings (id, message)
-      VALUES (1, 'Hello from Zerops!')
+      VALUES (1, 'Facelab is live on Zerops!')
       ON CONFLICT (id) DO NOTHING;
     `);
     console.log('Migration complete.');

@@ -15,9 +15,10 @@ zerops:
         # but migrate.js runs before the server starts, so bundling is
         # the cleanest solution.
         - node scripts/bundle-migrate.mjs
-        # prebuild script (generate-build-info.js) writes version +
-        # timestamp to build-info.json, then next build compiles the
-        # standalone bundle with @vercel/nft import tracing.
+        # Explicit (not npm prebuild) — project .npmrc sets
+        # ignore-scripts=true so lifecycle hooks do not fire.
+        - node scripts/generate-build-info.js
+        # next build compiles the standalone bundle with @vercel/nft.
         - npm run build
 
       # Next.js standalone bundles all runtime dependencies via

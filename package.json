@@ -1,28 +1,22 @@
 {
-  "name": "nextjs-ssr-hello-world-app",
+  "name": "facelab",
   "version": "1.0.0",
-  "author": "Zerops",
+  "author": "Facelab",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/zerops-recipe-apps/nextjs-ssr-hello-world-app"
-  },
-  "homepage": "https://github.com/zerops-recipe-apps/nextjs-ssr-hello-world-app",
-  "bugs": {
-    "url": "https://github.com/zerops-recipe-apps/nextjs-ssr-hello-world-app/issues"
-  },
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=22.0.0"
   },
   "scripts": {
-    "prebuild": "node scripts/generate-build-info.js",
-    "build": "next build",
-    "dev": "next dev",
+    "build:info": "node scripts/generate-build-info.js",
+    "build": "node scripts/generate-build-info.js && next build",
+    "dev": "next dev --hostname 0.0.0.0 --port 3000",
     "start": "node .next/standalone/server.js"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.511.0",
     "next": "^16.2.11",
     "pg": "^8.13.3",
     "react": "^19.2.7",
@@ -33,18 +27,20 @@
     "@types/pg": "^8.11.11",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^3.4.17",
     "typescript": "5.9.3"
   },
   "overrides": {
-    "postcss": ">=8.5.10",
     "sharp": ">=0.35.0"
   },
   "keywords": [
+    "facelab",
     "nextjs",
+    "skincare",
     "zerops",
-    "ssr",
-    "standalone",
-    "postgresql"
+    "ai"
   ]
 }
