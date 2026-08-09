@@ -2,7 +2,7 @@
 
 An end-to-end AI skincare platform that eliminates guesswork by combining computer vision, product OCR, routine safety analysis, and a personalized AI assistant.
 
-**Live Stage:** [your-live-url-here]  
+**Live Stage:** https://appstage-2b6b-3000.prg1.zerops.app/scan
 **Repository:** https://github.com/Azad-Ali-Mohamed/facelab-riru
 
 ---
