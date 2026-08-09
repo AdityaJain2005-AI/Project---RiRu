@@ -20,16 +20,20 @@ zerops:
         - node scripts/generate-build-info.js
         # next build compiles the standalone bundle with @vercel/nft.
         - npm run build
+        # Standalone server only serves assets from INSIDE its folder.
+        # Without these copies, /_next/static/* returns 404 and the UI
+        # looks like unstyled HTML.
+        - mkdir -p .next/standalone/.next
+        - cp -r .next/static .next/standalone/.next/static
+        - cp -r public .next/standalone/public
+        - cp build-info.json .next/standalone/build-info.json
+        - cp migrate.cjs .next/standalone/migrate.cjs
 
-      # Next.js standalone bundles all runtime dependencies via
-      # @vercel/nft - no node_modules needed at runtime. Static
-      # assets and public dir must be deployed alongside.
+      # Deploy the self-contained standalone tree (includes static + public).
       deployFiles:
         - .next/standalone
-        - .next/static
-        - public
-        - build-info.json
         - migrate.cjs
+        - build-info.json
 
       cache:
         # Do NOT cache .next/cache - Zerops cache restoration causes
