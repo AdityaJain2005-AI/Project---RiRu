@@ -3,8 +3,10 @@ import { ROUTINE } from "@/lib/scan-engine";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const scanId = new URL(req.url).searchParams.get("scanId");
+
     const userRes = await query<{
       id: string;
       name: string;
@@ -19,20 +21,35 @@ export async function GET() {
       return Response.json({ error: "User not found — run migrations" }, { status: 500 });
     }
 
-    const scanRes = await query<{
-      id: string;
-      overall_score: number;
-      metrics: unknown;
-      concerns: unknown;
-      ingredients: unknown;
-      summary: string;
-      source: string;
-      created_at: string;
-    }>(
-      `SELECT id, overall_score, metrics, concerns, ingredients, summary, source, created_at
-       FROM skin_scans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
-      [DEMO_USER_ID]
-    );
+    const scanRes = scanId
+      ? await query<{
+          id: string;
+          overall_score: number;
+          metrics: unknown;
+          concerns: unknown;
+          ingredients: unknown;
+          summary: string;
+          source: string;
+          created_at: string;
+        }>(
+          `SELECT id, overall_score, metrics, concerns, ingredients, summary, source, created_at
+           FROM skin_scans WHERE user_id = $1 AND id = $2`,
+          [DEMO_USER_ID, scanId]
+        )
+      : await query<{
+          id: string;
+          overall_score: number;
+          metrics: unknown;
+          concerns: unknown;
+          ingredients: unknown;
+          summary: string;
+          source: string;
+          created_at: string;
+        }>(
+          `SELECT id, overall_score, metrics, concerns, ingredients, summary, source, created_at
+           FROM skin_scans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+          [DEMO_USER_ID]
+        );
     const scan = scanRes.rows[0] ?? null;
 
     const historyRes = await query<{ overall_score: number; created_at: string }>(

@@ -1,17 +1,20 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { Badge, Button, Card, cn } from "./ui";
 
 type Msg = { id?: string; role: "user" | "ai"; text: string };
 
 export function ChatPage() {
+  const searchParams = useSearchParams();
   const [messages, setMessages] = React.useState<Msg[]>([]);
   const [draft, setDraft] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const bottomRef = React.useRef<HTMLDivElement>(null);
+  const seeded = React.useRef(false);
 
   React.useEffect(() => {
     void (async () => {
@@ -29,7 +32,7 @@ export function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, busy]);
 
-  async function send(textOverride?: string) {
+  const send = React.useCallback(async (textOverride?: string) => {
     const text = (textOverride ?? draft).trim();
     if (!text || busy) return;
     setDraft("");
@@ -58,7 +61,17 @@ export function ChatPage() {
     } finally {
       setBusy(false);
     }
-  }
+  }, [busy, draft]);
+
+  // Deep-link: /chat?q=... auto-sends once loaded
+  React.useEffect(() => {
+    if (loading || seeded.current) return;
+    const q = searchParams.get("q");
+    if (q?.trim()) {
+      seeded.current = true;
+      void send(q.trim());
+    }
+  }, [loading, searchParams, send]);
 
   return (
     <Card elevated className="flex min-h-[70vh] flex-col overflow-hidden">
@@ -92,7 +105,7 @@ export function ChatPage() {
           <div
             key={msg.id ?? i}
             className={cn(
-              "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
+              "max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
               msg.role === "ai"
                 ? "self-start rounded-tl-md bg-zinc-100 text-zinc-700"
                 : "self-end rounded-tr-md bg-emerald-600 text-white shadow-sm shadow-emerald-600/15"
@@ -115,9 +128,11 @@ export function ChatPage() {
             "Why is hydration low?",
             "Tweak my PM for 5 minutes",
             "Travel SPF kit",
+            "Explain my latest scan",
           ].map((q) => (
             <button
               key={q}
+              type="button"
               onClick={() => void send(q)}
               className="rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] text-zinc-600 transition hover:border-emerald-300 hover:text-emerald-700"
             >
@@ -133,7 +148,13 @@ export function ChatPage() {
             placeholder="Ask anything about your skin plan…"
             className="h-11 flex-1 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm outline-none ring-emerald-500/30 placeholder:text-zinc-400 focus:bg-white focus:ring-2"
           />
-          <Button size="icon" className="h-11 w-11" onClick={() => void send()} disabled={busy}>
+          <Button
+            size="icon"
+            className="h-11 w-11"
+            onClick={() => void send()}
+            disabled={busy}
+            type="button"
+          >
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

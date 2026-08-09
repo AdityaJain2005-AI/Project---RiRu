@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Camera, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Camera, Loader2, Trash2 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, ScoreRing, Skeleton, cn } from "./ui";
 
 type ScanRow = {
@@ -15,23 +16,43 @@ type ScanRow = {
 };
 
 export function HistoryView() {
+  const router = useRouter();
   const [scans, setScans] = React.useState<ScanRow[] | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [selected, setSelected] = React.useState<string | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
+
+  async function load() {
+    try {
+      const res = await fetch("/api/scans/list", { cache: "no-store" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed");
+      setScans(json.scans);
+      if (json.scans[0]) setSelected(json.scans[0].id);
+      else setSelected(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed");
+    }
+  }
 
   React.useEffect(() => {
-    void (async () => {
-      try {
-        const res = await fetch("/api/scans/list", { cache: "no-store" });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || "Failed");
-        setScans(json.scans);
-        if (json.scans[0]) setSelected(json.scans[0].id);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed");
-      }
-    })();
+    void load();
   }, []);
+
+  async function removeScan(id: string) {
+    if (!confirm("Delete this scan from your history?")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/scans/${id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Delete failed");
+      await load();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Delete failed");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   if (error) {
     return (
@@ -39,7 +60,9 @@ export function HistoryView() {
         title="Couldn’t load history"
         body={error}
         action={
-          <Button onClick={() => window.location.reload()}>Retry</Button>
+          <Button type="button" onClick={() => window.location.reload()}>
+            Retry
+          </Button>
         }
       />
     );
@@ -76,6 +99,11 @@ export function HistoryView() {
   const scores = [...scans].reverse().map((s) => s.overallScore);
   const max = Math.max(...scores, 1);
   const min = Math.min(...scores, 0);
+  const prev =
+    scans.length > 1
+      ? scans[scans.findIndex((s) => s.id === active.id) + 1]
+      : null;
+  const delta = prev ? active.overallScore - prev.overallScore : null;
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
@@ -107,6 +135,7 @@ export function HistoryView() {
             return (
               <li key={s.id}>
                 <button
+                  type="button"
                   onClick={() => setSelected(s.id)}
                   className={cn(
                     "flex w-full items-center gap-4 rounded-2xl border px-4 py-3 text-left transition",
@@ -134,7 +163,10 @@ export function HistoryView() {
                     </span>
                   </span>
                   <span className="text-[11px] text-zinc-400">
-                    {d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+                    {d.toLocaleTimeString([], {
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
                   </span>
                 </button>
               </li>
@@ -150,21 +182,62 @@ export function HistoryView() {
           <p className="mt-1 text-xs text-zinc-500">
             {new Date(active.createdAt).toLocaleString()}
           </p>
+          {delta != null && (
+            <Badge tone={delta >= 0 ? "emerald" : "rose"} className="mt-2">
+              {delta >= 0 ? "+" : ""}
+              {delta} vs previous
+            </Badge>
+          )}
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-zinc-600">{active.summary}</p>
+        <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+          {active.summary}
+        </p>
         <div className="mt-4 space-y-2">
           {(active.metrics ?? []).slice(0, 6).map((m) => (
-            <div key={m.id || m.label} className="flex items-center justify-between text-sm">
+            <div
+              key={m.id || m.label}
+              className="flex items-center justify-between text-sm"
+            >
               <span className="text-zinc-500">{m.label}</span>
-              <span className="font-semibold tabular-nums text-zinc-900">{m.score}</span>
+              <span className="font-semibold tabular-nums text-zinc-900">
+                {m.score}
+              </span>
             </div>
           ))}
         </div>
-        <Link href="/dashboard" className="mt-5 block">
-          <Button className="w-full" variant="outline">
+        <div className="mt-5 space-y-2">
+          <Button
+            className="w-full"
+            type="button"
+            onClick={() => router.push(`/dashboard?scanId=${active.id}`)}
+          >
             Open in lab
           </Button>
-        </Link>
+          <Link
+            href={`/chat?q=${encodeURIComponent(
+              `Explain my scan from ${new Date(active.createdAt).toLocaleDateString()} with score ${active.overallScore}`
+            )}`}
+            className="block"
+          >
+            <Button className="w-full" variant="outline" type="button">
+              Ask AI about this scan
+            </Button>
+          </Link>
+          <Button
+            className="w-full"
+            variant="danger"
+            type="button"
+            disabled={deleting}
+            onClick={() => void removeScan(active.id)}
+          >
+            {deleting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+            Delete scan
+          </Button>
+        </div>
       </Card>
     </div>
   );

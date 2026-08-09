@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Activity,
   Bell,
@@ -14,6 +15,7 @@ import {
   Shield,
   Sparkles,
   Sun,
+  Trash2,
   Upload,
   Waves,
 } from "lucide-react";
@@ -60,6 +62,10 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function LabDashboard() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const scanIdParam = searchParams.get("scanId");
+
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [toast, setToast] = React.useState<string | null>(null);
@@ -67,9 +73,11 @@ export function LabDashboard() {
     "overview"
   );
   const [busy, setBusy] = React.useState(false);
+  const [planBusy, setPlanBusy] = React.useState(false);
   const [data, setData] = React.useState<{
     user: { name: string; initials: string; skinType: string; streakDays: number };
     scan: {
+      id: string;
       overallScore: number;
       metrics: Metric[];
       concerns: Concern[];
@@ -82,6 +90,7 @@ export function LabDashboard() {
   } | null>(null);
   const [notifOpen, setNotifOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [ingDetail, setIngDetail] = React.useState<Ingredient | null>(null);
   const [form, setForm] = React.useState({ name: "", skinType: "" });
   const [selectedConcern, setSelectedConcern] = React.useState<string | null>(
     null
@@ -91,7 +100,8 @@ export function LabDashboard() {
   const load = React.useCallback(async () => {
     setError(null);
     try {
-      const res = await fetch("/api/dashboard", { cache: "no-store" });
+      const q = scanIdParam ? `?scanId=${encodeURIComponent(scanIdParam)}` : "";
+      const res = await fetch(`/api/dashboard${q}`, { cache: "no-store" });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed");
       setData({
@@ -108,9 +118,10 @@ export function LabDashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [scanIdParam]);
 
   React.useEffect(() => {
+    setLoading(true);
     void load();
   }, [load]);
 
@@ -122,7 +133,7 @@ export function LabDashboard() {
   async function scan(source: "camera" | "upload", fileName?: string) {
     setBusy(true);
     try {
-      await new Promise((r) => setTimeout(r, 1200));
+      await new Promise((r) => setTimeout(r, 1000));
       const res = await fetch("/api/scans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -131,6 +142,7 @@ export function LabDashboard() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Scan failed");
       flash(`Scan saved · score ${json.scan.overallScore}`);
+      router.replace("/dashboard");
       await load();
     } catch (e) {
       flash(e instanceof Error ? e.message : "Scan failed");
@@ -153,13 +165,52 @@ export function LabDashboard() {
 
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault();
-    await fetch("/api/prefs", {
+    const res = await fetch("/api/prefs", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
+    if (!res.ok) {
+      flash("Could not save profile");
+      return;
+    }
     flash("Profile updated");
     setSettingsOpen(false);
+    await load();
+  }
+
+  async function buildPlan(c: Concern) {
+    setPlanBusy(true);
+    try {
+      const res = await fetch("/api/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          concernId: c.id,
+          concernTitle: c.title,
+          zone: c.zone,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Plan failed");
+      flash("Treatment plan saved to chat");
+      router.push(
+        `/chat?q=${encodeURIComponent(`Summarize my plan for ${c.title}`)}`
+      );
+    } catch (e) {
+      flash(e instanceof Error ? e.message : "Plan failed");
+    } finally {
+      setPlanBusy(false);
+    }
+  }
+
+  async function clearNotifications() {
+    await fetch("/api/prefs", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clearNotifications: true }),
+    });
+    flash("Notifications cleared");
     await load();
   }
 
@@ -182,7 +233,16 @@ export function LabDashboard() {
       <EmptyState
         title="Lab couldn’t load"
         body={error || "Unknown error"}
-        action={<Button onClick={() => { setLoading(true); void load(); }}>Retry</Button>}
+        action={
+          <Button
+            onClick={() => {
+              setLoading(true);
+              void load();
+            }}
+          >
+            Retry
+          </Button>
+        }
       />
     );
   }
@@ -195,6 +255,7 @@ export function LabDashboard() {
   const active =
     concerns.find((c) => c.id === selectedConcern) ?? concerns[0];
   const unread = data.notifications.filter((n) => !n.read).length;
+  const viewingHistory = Boolean(scanIdParam);
 
   return (
     <div>
@@ -216,12 +277,65 @@ export function LabDashboard() {
         </div>
       )}
 
+      {ingDetail && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 p-4"
+          onClick={() => setIngDetail(null)}
+        >
+          <Card
+            elevated
+            className="w-full max-w-md p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <Badge tone={ingDetail.tone}>{ingDetail.role}</Badge>
+                <h3 className="mt-2 text-lg font-semibold">{ingDetail.name}</h3>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Match score {ingDetail.match}% for your latest biomarkers.
+                </p>
+              </div>
+              <span
+                className={cn(
+                  "flex h-12 w-12 items-center justify-center rounded-2xl text-sm font-bold text-white",
+                  ingDetail.tone === "emerald" ? "bg-emerald-500" : "bg-teal-500"
+                )}
+              >
+                {ingDetail.match}
+              </span>
+            </div>
+            <p className="mt-4 text-sm leading-relaxed text-zinc-600">
+              Why it fits: this active supports {ingDetail.role.toLowerCase()}{" "}
+              goals tied to your current scan profile. Favorites are stored in
+              your lab prefs.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Button onClick={() => void toggleFav(ingDetail)}>
+                {ingDetail.favorited ? "Remove favorite" : "Save favorite"}
+              </Button>
+              <Link
+                href={`/chat?q=${encodeURIComponent(
+                  `How should I use ${ingDetail.name} in my routine?`
+                )}`}
+              >
+                <Button variant="outline">Ask AI about it</Button>
+              </Link>
+              <Button variant="ghost" onClick={() => setIngDetail(null)}>
+                Close
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
       <PageHeader
         eyebrow="Skin lab"
         title={`${data.user.name.split(" ")[0]}’s diagnostics`}
         description={
           scanData
-            ? `${scanData.lastScanLabel} · ${data.user.skinType} skin · ${data.user.streakDays}-day streak`
+            ? `${scanData.lastScanLabel} · ${data.user.skinType} skin · ${data.user.streakDays}-day streak${
+                viewingHistory ? " · viewing saved scan" : ""
+              }`
             : "Run a scan to unlock biomarkers and concerns."
         }
         action={
@@ -230,6 +344,7 @@ export function LabDashboard() {
               <Button
                 variant="ghost"
                 size="icon"
+                type="button"
                 onClick={async () => {
                   setNotifOpen((v) => !v);
                   setSettingsOpen(false);
@@ -250,14 +365,28 @@ export function LabDashboard() {
               </Button>
               {notifOpen && (
                 <Card className="absolute right-0 z-20 mt-2 w-80 p-2 shadow-lg">
-                  <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">
-                    Notifications
-                  </p>
+                  <div className="flex items-center justify-between px-2 py-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                      Notifications
+                    </p>
+                    {data.notifications.length > 0 && (
+                      <button
+                        type="button"
+                        className="text-[11px] font-medium text-rose-600 hover:underline"
+                        onClick={() => void clearNotifications()}
+                      >
+                        Clear all
+                      </button>
+                    )}
+                  </div>
                   {data.notifications.length === 0 && (
                     <p className="px-2 py-3 text-sm text-zinc-500">All clear.</p>
                   )}
                   {data.notifications.map((n) => (
-                    <div key={n.id} className="rounded-xl px-2 py-2 hover:bg-zinc-50">
+                    <div
+                      key={n.id}
+                      className="rounded-xl px-2 py-2 hover:bg-zinc-50"
+                    >
                       <p className="text-sm font-medium">{n.title}</p>
                       <p className="text-xs text-zinc-500">{n.body}</p>
                     </div>
@@ -269,6 +398,7 @@ export function LabDashboard() {
               <Button
                 variant="ghost"
                 size="icon"
+                type="button"
                 onClick={() => {
                   setSettingsOpen((v) => !v);
                   setNotifOpen(false);
@@ -299,22 +429,26 @@ export function LabDashboard() {
                           setForm((s) => ({ ...s, skinType: e.target.value }))
                         }
                       >
-                        {["Combination", "Oily", "Dry", "Normal", "Sensitive"].map(
-                          (t) => (
-                            <option key={t}>{t}</option>
-                          )
-                        )}
+                        {[
+                          "Combination",
+                          "Oily",
+                          "Dry",
+                          "Normal",
+                          "Sensitive",
+                        ].map((t) => (
+                          <option key={t}>{t}</option>
+                        ))}
                       </select>
                     </label>
                     <Button type="submit" size="sm" className="w-full">
-                      Save
+                      Save to database
                     </Button>
                   </form>
                 </Card>
               )}
             </div>
             <Link href="/scan">
-              <Button disabled={busy}>
+              <Button disabled={busy} type="button">
                 {busy ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -326,6 +460,22 @@ export function LabDashboard() {
           </div>
         }
       />
+
+      {viewingHistory && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <span>Viewing a past scan from history.</span>
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            onClick={() => {
+              router.replace("/dashboard");
+            }}
+          >
+            Show latest
+          </Button>
+        </div>
+      )}
 
       {!scanData ? (
         <EmptyState
@@ -346,7 +496,7 @@ export function LabDashboard() {
             <Card elevated className="p-5 sm:p-6">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-2">
-                  <Badge tone="teal">Latest · {scanData.lastScanLabel}</Badge>
+                  <Badge tone="teal">Scan · {scanData.lastScanLabel}</Badge>
                   <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
                     Overall skin score{" "}
                     <span className="text-emerald-600">{score}</span>
@@ -359,6 +509,7 @@ export function LabDashboard() {
                       size="sm"
                       variant="outline"
                       disabled={busy}
+                      type="button"
                       onClick={() => void scan("camera")}
                     >
                       <Camera className="h-3.5 w-3.5" />
@@ -368,13 +519,18 @@ export function LabDashboard() {
                       size="sm"
                       variant="ghost"
                       disabled={busy}
+                      type="button"
                       onClick={() => fileRef.current?.click()}
                     >
                       <Upload className="h-3.5 w-3.5" />
                       Photo
                     </Button>
-                    <Link href="/chat">
-                      <Button size="sm" variant="soft">
+                    <Link
+                      href={`/chat?q=${encodeURIComponent(
+                        "Explain my latest skin score and what to focus on"
+                      )}`}
+                    >
+                      <Button size="sm" variant="soft" type="button">
                         <MessageCircle className="h-3.5 w-3.5" />
                         Ask AI
                       </Button>
@@ -406,7 +562,10 @@ export function LabDashboard() {
               </div>
               <div className="mt-4 flex justify-between text-xs text-zinc-400">
                 <span>{data.history.length} scans in DB</span>
-                <Link href="/history" className="font-medium text-emerald-700 hover:underline">
+                <Link
+                  href="/history"
+                  className="font-medium text-emerald-700 hover:underline"
+                >
                   Full history
                 </Link>
               </div>
@@ -423,6 +582,7 @@ export function LabDashboard() {
             ).map(([id, label]) => (
               <button
                 key={id}
+                type="button"
                 onClick={() => setTab(id)}
                 className={cn(
                   "rounded-xl px-4 py-2 text-sm font-medium transition",
@@ -474,7 +634,17 @@ export function LabDashboard() {
                         style={{ width: `${m.score}%` }}
                       />
                     </div>
-                    <p className="text-xs leading-relaxed text-zinc-500">{m.tip}</p>
+                    <p className="text-xs leading-relaxed text-zinc-500">
+                      {m.tip}
+                    </p>
+                    <Link
+                      href={`/chat?q=${encodeURIComponent(
+                        `How do I improve my ${m.label.toLowerCase()} score of ${m.score}?`
+                      )}`}
+                      className="mt-2 inline-flex text-[11px] font-medium text-emerald-700 hover:underline"
+                    >
+                      Ask AI about this metric
+                    </Link>
                   </Card>
                 );
               })}
@@ -487,6 +657,7 @@ export function LabDashboard() {
                 {concerns.map((c) => (
                   <button
                     key={c.id}
+                    type="button"
                     onClick={() => setSelectedConcern(c.id)}
                     className={cn(
                       "flex w-full flex-col rounded-xl px-3 py-3 text-left",
@@ -520,12 +691,35 @@ export function LabDashboard() {
                   Primarily on the {active.zone}. Model confidence{" "}
                   {Math.round(active.confidence * 100)}%.
                 </p>
-                <Link href="/chat" className="mt-5 inline-block">
-                  <Button>
-                    Ask AI for a plan
-                    <ChevronRight className="h-4 w-4" />
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    disabled={planBusy}
+                    onClick={() => void buildPlan(active)}
+                  >
+                    {planBusy ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
+                    Build treatment plan
                   </Button>
-                </Link>
+                  <Link
+                    href={`/chat?q=${encodeURIComponent(
+                      `Help me treat ${active.title} on my ${active.zone}`
+                    )}`}
+                  >
+                    <Button variant="outline" type="button">
+                      Ask AI
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href="/routine">
+                    <Button variant="ghost" type="button">
+                      Open routine
+                    </Button>
+                  </Link>
+                </div>
               </Card>
             </div>
           )}
@@ -546,14 +740,26 @@ export function LabDashboard() {
                     <Badge tone={ing.tone}>{ing.role}</Badge>
                   </div>
                   <p className="mt-3 text-sm font-semibold">{ing.name}</p>
-                  <Button
-                    size="sm"
-                    variant={ing.favorited ? "soft" : "outline"}
-                    className="mt-3 w-full"
-                    onClick={() => void toggleFav(ing)}
-                  >
-                    {ing.favorited ? "Saved ★" : "Save ingredient"}
-                  </Button>
+                  <div className="mt-3 flex flex-col gap-2">
+                    <Button
+                      size="sm"
+                      variant={ing.favorited ? "soft" : "outline"}
+                      className="w-full"
+                      type="button"
+                      onClick={() => void toggleFav(ing)}
+                    >
+                      {ing.favorited ? "Saved ★" : "Save ingredient"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="w-full"
+                      type="button"
+                      onClick={() => setIngDetail(ing)}
+                    >
+                      Why this fits
+                    </Button>
+                  </div>
                 </Card>
               ))}
             </div>
@@ -561,10 +767,19 @@ export function LabDashboard() {
 
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href="/routine">
-              <Button variant="outline">Open routine checklist</Button>
+              <Button variant="outline" type="button">
+                Open routine checklist
+              </Button>
             </Link>
             <Link href="/history">
-              <Button variant="ghost">View all history</Button>
+              <Button variant="ghost" type="button">
+                View all history
+              </Button>
+            </Link>
+            <Link href="/scan">
+              <Button variant="ghost" type="button">
+                Guided scan
+              </Button>
             </Link>
           </div>
         </>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/ui";
 import { ChatPage } from "@/components/ChatPage";
 
@@ -15,7 +16,9 @@ export default function ChatRoute() {
         title="AI cosmetologist"
         description="Short, practical answers based on your latest biomarkers."
       />
-      <ChatPage />
+      <Suspense fallback={<p className="text-sm text-zinc-500">Loading chat…</p>}>
+        <ChatPage />
+      </Suspense>
     </div>
   );
 }

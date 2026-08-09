@@ -8,6 +8,9 @@ export async function POST(req: Request) {
     const body = (await req.json().catch(() => ({}))) as {
       source?: "camera" | "upload";
       fileName?: string;
+      /** Optional data URL or note that a live frame was captured */
+      captured?: boolean;
+      imageMeta?: { width?: number; height?: number; bytes?: number };
     };
     const source = body.source === "upload" ? "upload" : "camera";
 
@@ -46,14 +49,20 @@ export async function POST(req: Request) {
     const title =
       source === "upload"
         ? `Photo analyzed${body.fileName ? `: ${body.fileName}` : ""}`
-        : "New face scan complete";
+        : body.captured
+          ? "Live camera scan complete"
+          : "New face scan complete";
 
     await query(
       `INSERT INTO notifications (user_id, title, body) VALUES ($1, $2, $3)`,
       [
         DEMO_USER_ID,
         title,
-        `Skin score ${payload.overallScore}. ${payload.summary}`,
+        `Skin score ${payload.overallScore}. ${payload.summary}${
+          body.imageMeta?.width
+            ? ` · frame ${body.imageMeta.width}×${body.imageMeta.height}`
+            : ""
+        }`,
       ]
     );
 

@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import { Check, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { MessageCircle } from "lucide-react";
 import { Badge, Button, Card, PageHeader, cn } from "./ui";
 
 type Step = { step: number; name: string; time: string; why: string };
@@ -166,9 +168,10 @@ export function RoutinePage() {
         </Card>
       )}
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap gap-2">
         <Button
           variant="outline"
+          type="button"
           onClick={() => {
             setDone([]);
             void fetch("/api/prefs", {
@@ -180,6 +183,21 @@ export function RoutinePage() {
         >
           Reset checks
         </Button>
+        <Link
+          href={`/chat?q=${encodeURIComponent(
+            `Tweak my ${phase === "am" ? "morning" : "night"} routine — I only have 5 minutes`
+          )}`}
+        >
+          <Button type="button" variant="soft">
+            <MessageCircle className="h-4 w-4" />
+            Ask AI to tweak
+          </Button>
+        </Link>
+        <Link href="/scan">
+          <Button type="button" variant="ghost">
+            New scan first
+          </Button>
+        </Link>
       </div>
     </div>
   );

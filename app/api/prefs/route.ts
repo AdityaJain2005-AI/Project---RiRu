@@ -10,6 +10,7 @@ export async function PATCH(req: Request) {
       name?: string;
       favoriteIngredient?: { name: string; favorited: boolean };
       markNotificationsRead?: boolean;
+      clearNotifications?: boolean;
       routineDone?: { phase: "am" | "pm"; steps: number[] };
     };
 
@@ -55,6 +56,10 @@ export async function PATCH(req: Request) {
       await query(`UPDATE notifications SET read = TRUE WHERE user_id = $1`, [
         DEMO_USER_ID,
       ]);
+    }
+
+    if (body.clearNotifications) {
+      await query(`DELETE FROM notifications WHERE user_id = $1`, [DEMO_USER_ID]);
     }
 
     if (body.routineDone) {
