@@ -10,6 +10,7 @@ export async function PATCH(req: Request) {
       name?: string;
       favoriteIngredient?: { name: string; favorited: boolean };
       markNotificationsRead?: boolean;
+      routineDone?: { phase: "am" | "pm"; steps: number[] };
     };
 
     if (body.routinePhase === "am" || body.routinePhase === "pm") {
@@ -54,6 +55,24 @@ export async function PATCH(req: Request) {
       await query(`UPDATE notifications SET read = TRUE WHERE user_id = $1`, [
         DEMO_USER_ID,
       ]);
+    }
+
+    if (body.routineDone) {
+      const prefs = await query<{ settings: Record<string, unknown> }>(
+        `SELECT settings FROM user_prefs WHERE user_id = $1`,
+        [DEMO_USER_ID]
+      );
+      const settings = {
+        ...(prefs.rows[0]?.settings ?? {}),
+      } as { routineDone?: Record<string, number[]> };
+      settings.routineDone = {
+        ...(settings.routineDone ?? {}),
+        [body.routineDone.phase]: body.routineDone.steps,
+      };
+      await query(
+        `UPDATE user_prefs SET settings = $2::jsonb, updated_at = NOW() WHERE user_id = $1`,
+        [DEMO_USER_ID, JSON.stringify(settings)]
+      );
     }
 
     return Response.json({ ok: true });

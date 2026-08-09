@@ -4,16 +4,64 @@
 
 :root {
   color-scheme: light;
+  --fl-bg: #f4f6f7;
+  --fl-surface: #ffffff;
+  --fl-ink: #18181b;
+  --fl-muted: #71717a;
+  --fl-accent: #059669;
+  --fl-ring: rgba(16, 185, 129, 0.35);
 }
 
 html {
   scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 body {
-  @apply min-h-screen bg-[#F7F8F9] text-zinc-900 antialiased;
+  @apply min-h-screen antialiased;
+  background: var(--fl-bg);
+  color: var(--fl-ink);
+  font-feature-settings: "ss01" on, "cv11" on;
 }
 
 ::selection {
   @apply bg-emerald-200/70 text-emerald-950;
+}
+
+/* nicer focus for interactive cards */
+.fl-focus {
+  @apply outline-none ring-emerald-500/30 focus-visible:ring-2;
+}
+
+@keyframes facelab-scan {
+  0% {
+    top: 12%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    top: 82%;
+    opacity: 0;
+  }
+}
+
+.animate-facelab-scan {
+  animation: facelab-scan 2.4s ease-in-out infinite;
 }

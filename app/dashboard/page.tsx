@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import FacelabSkinDiagnosticDashboard from "@/components/FacelabSkinDiagnosticDashboard";
+import { LabDashboard } from "@/components/LabDashboard";
 
 export const metadata: Metadata = {
-  title: "Skin Diagnostic Dashboard",
-  description:
-    "AI skin scores, concerns, personalized routine, ingredient matches, and cosmetologist chat.",
+  title: "Skin lab",
+  description: "Scores, concerns, and ingredient matches from your latest scan.",
 };
 
 export default function DashboardPage() {
-  return <FacelabSkinDiagnosticDashboard />;
+  return <LabDashboard />;
 }

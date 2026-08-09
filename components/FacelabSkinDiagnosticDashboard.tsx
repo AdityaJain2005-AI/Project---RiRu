@@ -514,7 +514,7 @@ export default function FacelabSkinDiagnosticDashboard() {
   const historyScores = data.history.map((h) => h.score);
 
   return (
-    <div className="min-h-screen bg-[#F7F8F9] text-zinc-900 antialiased">
+    <div className="text-zinc-900 antialiased">
       <input
         ref={fileRef}
         type="file"

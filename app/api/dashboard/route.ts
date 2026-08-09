@@ -116,7 +116,7 @@ export async function GET() {
       prefs: {
         routinePhase: prefs.routine_phase as "am" | "pm",
         favorites,
-        settings: prefs.settings ?? {},
+        settings: (prefs.settings ?? {}) as Record<string, unknown>,
       },
       routine: ROUTINE,
       notifications: notifRes.rows.map((n) => ({
