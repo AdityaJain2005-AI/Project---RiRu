@@ -1,26 +1,16 @@
-# FaceLab – AI Skincare Diagnostic Platform
+# React + Vite
 
-An end-to-end AI skincare platform that eliminates guesswork by combining computer vision, product OCR, routine safety analysis, and a personalized AI assistant.
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-**Live Stage:** https://appstage-2b6b-3000.prg1.zerops.app/scan
-**Repository:** https://github.com/Azad-Ali-Mohamed/facelab-riru
+Currently, two official plugins are available:
 
----
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## Project Vision
+## React Compiler
 
-FaceLab is designed as a complete skincare system rather than a simple scanner:
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-- **Computer Vision Scan** – Real-time analysis of face metrics (redness, texture, acne severity)
-- **Product & Ingredient OCR** – Snap a bottle and automatically parse the full INCI list onto a digital shelf
-- **Automated Routine Auditor** – Detects dangerous active ingredient clashes and builds a safe AM/PM calendar
-- **Context-Aware AI Assistant** – A personalized LLM chatbot backed by a persistent “Skin Wiki” that remembers past reactions, skin scores, and active products
+## Expanding the Oxlint configuration
 
----
-## Tech Stack
-
-- **Framework**: Next.js 16 (App Router) + React 19 + TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui + Lucide icons
-- **Database**: PostgreSQL (managed on Zerops)
-- **Deployment**: Zerops (`zerops.yaml` with `dev` and `prod` setups), will shift to vercel.
----
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.

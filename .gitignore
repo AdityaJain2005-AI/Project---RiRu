@@ -1,47 +1,24 @@
-# Dependencies
-node_modules/
-.npm-cache/
-
-# Next.js
-.next/
-out/
-next-env.d.ts
-
-# Build / cache
-*.tsbuildinfo
-.turbo/
-build-info.json
-
-# Environment (secrets — never commit)
-.env
-.env.*
-!.env.example
-
-# Debug logs
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Testing
-coverage/
+node_modules
+dist
+dist-ssr
+*.local
 
-# Vercel (local CLI metadata)
-.vercel/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.idea/
-*.swp
-*.swo
+# Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-
-# TLS / keys
-*.pem
-
-# Bundled migration (generated at build time)
-migrate.cjs
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
