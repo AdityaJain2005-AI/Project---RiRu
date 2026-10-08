@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Skincare Product Scanner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background:#faf6f3; margin:0; padding:20px; color:#333; }
+        .box { max-width:760px; margin:auto; background:#fff; padding:25px; border-radius:14px; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+        h1 { margin-top:0; color:#b5546b; }
+        textarea { width:100%; height:80px; padding:8px; border:1px solid #ccc; border-radius:8px; box-sizing:border-box; }
+        button { background:#b5546b; color:#fff; border:none; padding:12px 24px; border-radius:8px; font-size:16px; cursor:pointer; margin-top:12px; }
+        .card { border-left:5px solid #ccc; background:#f7f7f7; padding:10px 14px; margin:10px 0; border-radius:6px; }
+        .good { border-color:#3a9d5d; } .neutral { border-color:#999; } .caution { border-color:#d9822b; }
+        .error { color:#c0392b; font-weight:bold; }
+        .tag { display:inline-block; background:#eee; padding:4px 10px; border-radius:14px; margin:3px; font-size:14px; }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h1>🧴 Skincare Product Scanner</h1>
+
+    <form action="/scan" method="POST" enctype="multipart/form-data">
+        <p><b>Option 1:</b> Upload a photo of the ingredients label</p>
+        <input type="file" name="product_image" accept="image/*">
+        <p><b>Option 2:</b> Or paste the ingredients text</p>
+        <textarea name="pasted_text" placeholder="Water, Glycerin, Niacinamide, ..."></textarea>
+        <br><button type="submit">Scan Product</button>
+    </form>
+
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+    {% if ingredients %}
+        <h2>Ingredients found ({{ ingredients|length }})</h2>
+        {% if details %}
+            {% for d in details %}
+                <div class="card {{ d.rating }}">
+                    <b>{{ d.name }}</b> — {{ d.function }}<br>
+                    <small>⚠️ {{ d.concern }}</small>
+                </div>
+            {% endfor %}
+        {% else %}
+            {% for i in ingredients %}<span class="tag">{{ i }}</span>{% endfor %}
+            <p><small>Add your Anthropic API key in app.py to get explanations for each ingredient.</small></p>
+        {% endif %}
+    {% endif %}
+
+    {% if raw and not ingredients %}<pre>{{ raw }}</pre>{% endif %}
+</div>
+</body>
+</html>
