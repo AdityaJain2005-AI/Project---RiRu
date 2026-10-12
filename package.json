@@ -17,7 +17,7 @@
     "dev": "next dev --hostname 0.0.0.0 --port 3000",
     "start": "node .next/standalone/server.js",
     "migrate": "node migrate.js",
-    "test": "node --experimental-strip-types --test tests/session-token.test.ts tests/storage.test.ts tests/shared-schema.test.ts tests/image-bytes.test.ts tests/scan-analysis.test.ts tests/ingredients.test.ts tests/recommend.test.ts",
+    "test": "node --experimental-strip-types --test tests/session-token.test.ts tests/storage.test.ts tests/shared-schema.test.ts tests/image-bytes.test.ts tests/scan-analysis.test.ts tests/ingredients.test.ts tests/recommend.test.ts tests/routine-db.integration.test.ts",
     "typecheck": "tsc --noEmit",
     "prisma:validate": "prisma validate"
   },
