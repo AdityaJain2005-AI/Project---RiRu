@@ -1,0 +1,1381 @@
+openapi: 3.1.0
+info:
+  title: RiRu API
+  version: 1.0.0
+  description: |
+    Public contract for the RiRu web app. Phase 0: this file is not served yet.
+    The browser calls only these Next.js routes. FastAPI is internal and is not
+    part of this document.
+
+    Every analysis, routine, and chat payload includes
+    "Informational only, not a medical diagnosis."
+
+    Owner routes return 404 when the session does not own the row.
+    Legacy routes under /api/scans, /api/chat, /api/prefs, /api/plan,
+    /api/dashboard, and /api/health stay until the screens that use them move.
+    They are not described here.
+  license:
+    name: MIT
+
+servers:
+  - url: /
+    description: Next.js origin
+
+tags:
+  - name: Scans
+  - name: Ingredients
+  - name: Recommendations
+  - name: Products
+  - name: Chat
+  - name: Profile
+  - name: Privacy
+  - name: Feedback
+
+paths:
+  /api/v1/scans:
+    post:
+      tags: [Scans]
+      operationId: createScan
+      summary: Start a face scan
+      description: |
+        Accepts a photo, queues analysis, and returns 202.
+        Default is to discard the image after analysis.
+        Same Idempotency-Key and user return the original scan.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image, disclaimerAck]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: JPEG, PNG, or WebP. Max 8 MB. Checked by magic bytes.
+                source:
+                  type: string
+                  enum: [camera, upload]
+                  default: upload
+                storeImage:
+                  type: boolean
+                  default: false
+                  description: Ignored unless storage is configured and store_image consent is granted.
+                disclaimerAck:
+                  type: boolean
+                  description: Must be true. The client shows the informational-only notice first.
+      responses:
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanAccepted"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "413":
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "415":
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+    get:
+      tags: [Scans]
+      operationId: listScans
+      summary: List the caller's scans
+      parameters:
+        - $ref: "#/components/parameters/Cursor"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        "200":
+          description: History, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [scans, disclaimer]
+                properties:
+                  scans:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Scan"
+                  nextCursor:
+                    type: string
+                    nullable: true
+                  disclaimer:
+                    $ref: "#/components/schemas/Disclaimer"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/scans/{id}:
+    parameters:
+      - $ref: "#/components/parameters/UuidId"
+    get:
+      tags: [Scans]
+      operationId: getScan
+      summary: Poll a scan
+      responses:
+        "200":
+          description: Current scan state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scan"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Scans]
+      operationId: deleteScan
+      summary: Delete a scan, its findings, and any stored image
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/ingredients/scan:
+    post:
+      tags: [Ingredients]
+      operationId: scanIngredients
+      summary: OCR an ingredient label, or accept typed text
+      description: |
+        Typed text is used instead of OCR when present, and that path can finish
+        inside this request with status succeeded. The HTTP status is still 202.
+        A photo stays queued until OCR finishes. Poll GET /api/v1/ingredients/scans/{id}.
+        disclaimerAck must be the string true. Bad uploads do not spend the daily slot.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: JPEG, PNG, or WebP by magic bytes. Ignored when text is non-empty.
+                text:
+                  type: string
+                  maxLength: 8000
+                  description: Typed list. Used instead of OCR when present.
+                storeImage:
+                  type: boolean
+                  default: false
+                disclaimerAck:
+                  type: string
+                  description: Must be the string true.
+      responses:
+        "202":
+          description: Accepted. Status may already be succeeded for a typed list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngredientScan"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "413":
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "415":
+          description: Unsupported media type
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /api/v1/ingredients/scans/{id}:
+    parameters:
+      - $ref: "#/components/parameters/UuidId"
+    get:
+      tags: [Ingredients]
+      operationId: getIngredientScan
+      summary: Poll an ingredient scan
+      responses:
+        "200":
+          description: Current ingredient scan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngredientScan"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Ingredients]
+      operationId: confirmIngredientScan
+      summary: Save the caller's confirmed ingredient text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirmedText]
+              properties:
+                confirmedText:
+                  type: string
+                  maxLength: 8000
+      responses:
+        "200":
+          description: Updated ingredient scan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngredientScan"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: The scan is still queued or running
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /api/v1/ingredients/{inci}:
+    parameters:
+      - name: inci
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Canonical INCI name, case-insensitive.
+    get:
+      tags: [Ingredients]
+      operationId: getIngredient
+      summary: Look up one INCI record
+      responses:
+        "200":
+          description: Catalog record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ingredient"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/ingredients/analyze:
+    post:
+      tags: [Ingredients]
+      operationId: analyzeIngredients
+      summary: Run the versioned rule pack for the caller's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Provide inciNames or ingredientScanId, not both.
+              properties:
+                disclaimerAck:
+                  type: boolean
+                  description: Must be true.
+                inciNames:
+                  type: array
+                  items:
+                    type: string
+                ingredientScanId:
+                  type: string
+                  format: uuid
+                  description: Uses confirmed_text. Returns 400 CONFIRM_REQUIRED when that text is null.
+      responses:
+        "200":
+          description: Verdict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IngredientVerdict"
+        "400":
+          description: Empty list, or the scan has no confirmed text (CONFIRM_REQUIRED)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: The scan id is not the caller's
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /api/v1/recommendations:
+    post:
+      tags: [Recommendations]
+      operationId: createRecommendation
+      summary: Build an AM/PM routine from the latest scan and the profile
+      description: |
+        The created body is the in-memory build, including product.why for that request.
+        GET later rebuilds product.why as a shorter catalog sentence and recomputes alternatives,
+        because the routine row does not store a payload. A heuristic_v0 scan does not personalize.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [disclaimerAck]
+              properties:
+                disclaimerAck:
+                  type: boolean
+                  description: Must be true.
+                scanId:
+                  type: string
+                  format: uuid
+                  description: Defaults to the latest scan. That scan must have succeeded. A newer rejected photo is not skipped.
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Routine"
+        "400":
+          description: disclaimerAck was not true, or the body was not JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: scanId is not a uuid, or it is not the caller's scan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "409":
+          description: No succeeded scan yet, or the chosen scan (the latest, when scanId is omitted) did not succeed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /api/v1/recommendations/{id}:
+    parameters:
+      - $ref: "#/components/parameters/UuidId"
+    get:
+      tags: [Recommendations]
+      operationId: getRecommendation
+      responses:
+        "200":
+          description: Routine
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Routine"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/products/search:
+    get:
+      tags: [Products]
+      operationId: searchProducts
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: stepKind
+          in: query
+          schema:
+            $ref: "#/components/schemas/StepKind"
+        - name: budget
+          in: query
+          schema:
+            type: string
+            enum: [low, mid, high]
+      responses:
+        "200":
+          description: Catalog matches
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [products]
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/products/{id}/prices:
+    parameters:
+      - $ref: "#/components/parameters/UuidId"
+    get:
+      tags: [Products]
+      operationId: listPrices
+      description: |
+        Rows this caller pasted. Another caller's rows are not returned.
+        The server stores the link and does not request it.
+      responses:
+        "200":
+          description: Stored listings for the caller. The server does not request the URL.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [prices]
+                properties:
+                  prices:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PriceListing"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags: [Products]
+      operationId: submitPrice
+      summary: Store a price the user pasted
+      description: |
+        provider is manual. The server does not request the URL and does not read a retailer page.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [priceCents, currency, url]
+              properties:
+                priceCents:
+                  type: integer
+                  minimum: 0
+                currency:
+                  type: string
+                  minLength: 3
+                  maxLength: 3
+                url:
+                  type: string
+                  format: uri
+      responses:
+        "201":
+          description: Stored as provider manual
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PriceListing"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: The product is not in the example catalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+  /api/v1/products/{id}/alternatives:
+    parameters:
+      - $ref: "#/components/parameters/UuidId"
+    get:
+      tags: [Products]
+      operationId: listAlternatives
+      description: |
+        method is jaccard_v1, the overlap of INCI names inside the same step.
+        jaccard_embedding_v1 is reserved and is not implemented.
+      responses:
+        "200":
+          description: Similar products after allergy, fragrance, pregnancy, recovery, and irritancy filters
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [method, alternatives]
+                properties:
+                  method:
+                    type: string
+                    enum: [jaccard_v1, jaccard_embedding_v1]
+                  alternatives:
+                    type: array
+                    items:
+                      type: object
+                      required: [product, score, why]
+                      properties:
+                        product:
+                          $ref: "#/components/schemas/Product"
+                        score:
+                          type: number
+                        why:
+                          type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/chat:
+    post:
+      tags: [Chat]
+      operationId: postChat
+      summary: Stream a grounded reply
+      description: |
+        Phase 5. Not exposed before retrieval exists.
+        Response is text/event-stream.
+        Events are token, citation, and done.
+        Low retrieval confidence yields a refusal instead of a generated answer.
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          schema:
+            type: string
+            enum: [text/event-stream]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                sessionId:
+                  type: string
+                  format: uuid
+                message:
+                  type: string
+                  maxLength: 2000
+      responses:
+        "200":
+          description: Server-sent events
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /api/v1/chat/sessions:
+    get:
+      tags: [Chat]
+      operationId: listChatSessions
+      responses:
+        "200":
+          description: The caller's sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sessions]
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ChatSession"
+
+  /api/v1/chat/sessions/{id}:
+    parameters:
+      - $ref: "#/components/parameters/UuidId"
+    get:
+      tags: [Chat]
+      operationId: getChatSession
+      responses:
+        "200":
+          description: Session with messages
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [session, messages]
+                properties:
+                  session:
+                    $ref: "#/components/schemas/ChatSession"
+                  messages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ChatMessage"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/profile:
+    get:
+      tags: [Profile]
+      operationId: getProfile
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    put:
+      tags: [Profile]
+      operationId: putProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileWrite"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /api/v1/profile/recovery-mode:
+    post:
+      tags: [Profile]
+      operationId: setRecoveryMode
+      description: |
+        Turns on a barrier-repair routine and removes retinoids, strong AHAs and BHAs,
+        high-strength vitamin C, physical scrubs, and fragranced products from suggestions.
+        The response tells the user their clinician's aftercare overrides the app.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [active, procedureType]
+              properties:
+                active:
+                  type: boolean
+                procedureType:
+                  type: string
+                  enum: [laser, peel, microneedling, other]
+                procedureOn:
+                  type: string
+                  format: date
+                  nullable: true
+                clinicianNote:
+                  type: string
+                  maxLength: 500
+      responses:
+        "200":
+          description: Recovery state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcedureRecovery"
+
+  /api/v1/consent:
+    post:
+      tags: [Privacy]
+      operationId: recordConsent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [purpose, granted, policyVersion]
+              properties:
+                purpose:
+                  type: string
+                  enum: [camera_analysis, store_image, training_opt_in, chat_context]
+                granted:
+                  type: boolean
+                policyVersion:
+                  type: string
+      responses:
+        "201":
+          description: Appended to the consent log
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, purpose, granted]
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  purpose:
+                    type: string
+                  granted:
+                    type: boolean
+
+  /api/v1/feedback:
+    post:
+      tags: [Feedback]
+      operationId: createFeedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [topic, message]
+              properties:
+                topic:
+                  type: string
+                  enum: [ingredient, rule, scan, routine, product, other]
+                targetRef:
+                  type: string
+                  description: INCI name, rule key, or uuid the report is about.
+                message:
+                  type: string
+                  maxLength: 2000
+                pageUrl:
+                  type: string
+      responses:
+        "201":
+          description: Stored
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id]
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /api/v1/me/export:
+    get:
+      tags: [Privacy]
+      operationId: exportMe
+      responses:
+        "200":
+          description: JSON download of the caller's data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportBundle"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+
+  /api/v1/me/data:
+    delete:
+      tags: [Privacy]
+      operationId: deleteMe
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Deleted, or the same receipt when the key is reused
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [requestId, completedAt]
+                properties:
+                  requestId:
+                    type: string
+                  completedAt:
+                    type: string
+                    format: date-time
+
+components:
+  parameters:
+    UuidId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        maxLength: 80
+
+  responses:
+    BadRequest:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    Unauthorized:
+      description: No session
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    NotFound:
+      description: Not found for this session
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    TooManyRequests:
+      description: Rate limit
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+
+  schemas:
+    Disclaimer:
+      type: string
+      const: "Informational only, not a medical diagnosis."
+
+    ErrorBody:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: |
+                Stable codes include VALIDATION, UNAUTHORIZED, NOT_FOUND,
+                RATE_LIMITED, PAYLOAD_TOO_LARGE, UNSUPPORTED_MEDIA,
+                SCAN_QUALITY_REJECTED, ML_UNAVAILABLE, NO_SCAN,
+                STORAGE_DISABLED, LOW_RETRIEVAL_CONFIDENCE.
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+
+    ScanAccepted:
+      type: object
+      required: [scan, disclaimer]
+      properties:
+        scan:
+          type: object
+          required: [id, status]
+          properties:
+            id:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [queued]
+        disclaimer:
+          $ref: "#/components/schemas/Disclaimer"
+
+    Scan:
+      type: object
+      required: [id, status, analysisKind, source, createdAt, disclaimer]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, running, succeeded, failed, rejected_quality]
+        analysisKind:
+          type: string
+          enum: [heuristic_v0, baseline_cv_v1, pending]
+          description: heuristic_v0 is not a measurement. Clients must say so.
+        source:
+          type: string
+        modelVersion:
+          type: string
+          nullable: true
+        overallScore:
+          type: integer
+          nullable: true
+          description: Present for legacy rows. baseline_cv_v1 may omit a single score.
+        skinType:
+          type: string
+          enum: [oily, dry, combination, normal, sensitive, unknown]
+          nullable: true
+        skinTypeConfidence:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1
+        quality:
+          type: object
+          nullable: true
+          properties:
+            accepted:
+              type: boolean
+            reasons:
+              type: array
+              items:
+                type: string
+                enum: [no_face, multiple_faces, too_dark, too_bright, blurry, off_center, face_too_small, clipped]
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Finding"
+        summary:
+          type: string
+        imageStored:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        disclaimer:
+          $ref: "#/components/schemas/Disclaimer"
+        escalation:
+          type: string
+          nullable: true
+          description: Present when any finding is severe or the quality of the photo cannot support a reading.
+
+    Finding:
+      type: object
+      required: [concern, severity, confidence, explanation, region]
+      properties:
+        concern:
+          type: string
+          enum: [acne, blackheads_pores, pigmentation, redness, dark_circles, texture, fine_lines, dehydration]
+        severity:
+          type: string
+          enum: [none, mild, moderate, severe]
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        explanation:
+          type: string
+        escalate:
+          type: boolean
+        region:
+          type: object
+          description: |
+            Full-image coordinates from 0 to 1, origin at the top left.
+            space is "image". These are not face-crop coordinates.
+          properties:
+            zone:
+              type: string
+            space:
+              type: string
+              enum: [image]
+            box:
+              type: object
+              properties:
+                x: { type: number }
+                y: { type: number }
+                w: { type: number }
+                h: { type: number }
+
+    Ingredient:
+      type: object
+      required: [inci, functions, plainDescription, pregnancyNote]
+      properties:
+        inci:
+          type: string
+        functions:
+          type: array
+          items:
+            type: string
+        irritancy:
+          type: integer
+          minimum: 0
+          maximum: 5
+          nullable: true
+        comedogenicity:
+          type: integer
+          minimum: 0
+          maximum: 5
+          nullable: true
+        typicalRange:
+          type: string
+          nullable: true
+        pregnancyNote:
+          type: string
+        avoidIf:
+          type: array
+          items:
+            type: string
+        plainDescription:
+          type: string
+        source:
+          type: string
+
+    IngredientScan:
+      type: object
+      required: [id, status, disclaimer]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [queued, running, succeeded, failed, rejected_quality]
+        ocrText:
+          type: string
+          nullable: true
+        parsed:
+          type: array
+          items:
+            type: object
+            required: [raw, status]
+            properties:
+              raw:
+                type: string
+              inci:
+                type: string
+                nullable: true
+              status:
+                type: string
+                enum: [matched, fuzzy, unparsed]
+        confirmedText:
+          type: string
+          nullable: true
+        imageStored:
+          type: boolean
+          description: True only after the caller opted in and a storage adapter accepted the photo.
+        disclaimer:
+          $ref: "#/components/schemas/Disclaimer"
+
+    IngredientVerdict:
+      type: object
+      required: [verdict, reasons, rulesetVersion, disclaimer]
+      properties:
+        verdict:
+          type: string
+          enum: [good_fit, caution, avoid]
+        reasons:
+          type: array
+          items:
+            type: object
+            required: [ruleKey, message]
+            properties:
+              ruleKey:
+                type: string
+              message:
+                type: string
+        unparsed:
+          type: array
+          items:
+            type: string
+        rulesetVersion:
+          type: string
+        disclaimer:
+          $ref: "#/components/schemas/Disclaimer"
+
+    StepKind:
+      type: string
+      enum: [cleanser, treatment, moisturizer, spf, extra]
+
+    Product:
+      type: object
+      required: [id, slug, name, brand, stepKind, budget]
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        brand:
+          type: string
+        stepKind:
+          $ref: "#/components/schemas/StepKind"
+        budget:
+          type: string
+          enum: [low, mid, high]
+        fragranceFree:
+          type: boolean
+        minimalIngredient:
+          type: boolean
+        why:
+          type: string
+          description: Why this suggestion suits the caller's profile. Empty on plain search. Shorter on GET /api/v1/recommendations/{id} than on the create response.
+        description:
+          type: string
+        source:
+          type: string
+          description: Where the example INCI list came from. Not a retailer page.
+
+    PriceListing:
+      type: object
+      required: [id, provider, priceCents, currency, url, fetchedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        provider:
+          type: string
+          enum: [manual, official]
+        priceCents:
+          type: integer
+        currency:
+          type: string
+        url:
+          type: string
+        fetchedAt:
+          type: string
+          format: date-time
+
+    Routine:
+      type: object
+      required: [id, rulesetVersion, summary, steps, lifestyle, disclaimer]
+      properties:
+        id:
+          type: string
+          format: uuid
+        rulesetVersion:
+          type: string
+        summary:
+          type: string
+        recoveryActive:
+          type: boolean
+        clinicianOverridesApp:
+          type: string
+          description: Present when recovery mode is on.
+        steps:
+          type: array
+          items:
+            type: object
+            required: [period, position, kind, title, instructions, why]
+            properties:
+              period:
+                type: string
+                enum: [am, pm, weekly]
+              position:
+                type: integer
+              kind:
+                $ref: "#/components/schemas/StepKind"
+              title:
+                type: string
+              instructions:
+                type: string
+              why:
+                type: string
+              caution:
+                type: string
+                nullable: true
+              product:
+                $ref: "#/components/schemas/Product"
+              alternatives:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        lifestyle:
+          type: array
+          items:
+            type: string
+        disclaimer:
+          $ref: "#/components/schemas/Disclaimer"
+
+    ChatSession:
+      type: object
+      required: [id, title, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        suggestedFollowUps:
+          type: array
+          items:
+            type: string
+
+    ChatMessage:
+      type: object
+      required: [id, role, content, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        citations:
+          type: array
+          items:
+            type: object
+            required: [source, heading]
+            properties:
+              source:
+                type: string
+              heading:
+                type: string
+        retrievalScore:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        disclaimer:
+          $ref: "#/components/schemas/Disclaimer"
+
+    Profile:
+      type: object
+      required: [ageRange, skinGoals, allergies, budget, currency, locale]
+      properties:
+        ageRange:
+          type: string
+          enum: [under_18, 18_24, 25_34, 35_44, 45_plus, undisclosed]
+        skinGoals:
+          type: array
+          items:
+            type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        budget:
+          type: string
+          enum: [low, mid, high, any]
+        currency:
+          type: string
+        locale:
+          type: string
+          enum: [en, hi, ta]
+        pregnantOrFeeding:
+          type: boolean
+        fragranceSensitive:
+          type: boolean
+        selfDescribedSensitive:
+          type: boolean
+        allowScanInChat:
+          type: boolean
+        recovery:
+          $ref: "#/components/schemas/ProcedureRecovery"
+
+    ProfileWrite:
+      type: object
+      properties:
+        ageRange:
+          type: string
+          enum: [under_18, 18_24, 25_34, 35_44, 45_plus, undisclosed]
+        skinGoals:
+          type: array
+          items:
+            type: string
+        allergies:
+          type: array
+          items:
+            type: string
+        budget:
+          type: string
+          enum: [low, mid, high, any]
+        currency:
+          type: string
+        locale:
+          type: string
+          enum: [en, hi, ta]
+        pregnantOrFeeding:
+          type: boolean
+        fragranceSensitive:
+          type: boolean
+        selfDescribedSensitive:
+          type: boolean
+        allowScanInChat:
+          type: boolean
+
+    ProcedureRecovery:
+      type: object
+      required: [active, procedureType, disclaimer]
+      properties:
+        active:
+          type: boolean
+        procedureType:
+          type: string
+          enum: [laser, peel, microneedling, other]
+        procedureOn:
+          type: string
+          format: date
+          nullable: true
+        clinicianNote:
+          type: string
+        removedActives:
+          type: array
+          items:
+            type: string
+          description: retinoids, strong AHA/BHA, high-strength vitamin C, physical scrubs, fragrance
+        disclaimer:
+          $ref: "#/components/schemas/Disclaimer"
+        clinicianOverridesApp:
+          type: string
+
+    ExportBundle:
+      type: object
+      required: [exportedAt, profile, scans, routines, ingredientScans, chat, feedback, consents]
+      properties:
+        exportedAt:
+          type: string
+          format: date-time
+        profile:
+          $ref: "#/components/schemas/Profile"
+        scans:
+          type: array
+          items:
+            $ref: "#/components/schemas/Scan"
+        routines:
+          type: array
+          items:
+            $ref: "#/components/schemas/Routine"
+        ingredientScans:
+          type: array
+          items:
+            $ref: "#/components/schemas/IngredientScan"
+        chat:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        feedback:
+          type: array
+          items:
+            type: object
+        consents:
+          type: array
+          items:
+            type: object
