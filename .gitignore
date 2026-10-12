@@ -45,3 +45,12 @@ Thumbs.db
 
 # Bundled migration (generated at build time)
 migrate.cjs
+
+# MediaPipe task file. The Docker image downloads it. Do not commit the binary.
+services/ml/models/
+services/ml/.venv/
+
+# Python caches and local phase logs
+__pycache__/
+*.pyc
+log.txt
