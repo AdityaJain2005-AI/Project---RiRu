@@ -1,0 +1,119 @@
+# Versioned routine pack. Contributors edit this file. The engine does not call a model.
+# Example products are attached later from data/products. Recovery and pregnancy lists are filters, not doses.
+version: routines_v1
+lifestyle:
+  - "Use lukewarm water."
+  - "If your skin stings, stop that step and check with a clinician."
+recovery_message: "A recovery note is active. Follow your clinician. This list leaves out acids, retinoids, and benzoyl peroxide. This app does not replace that advice."
+recovery_avoid:
+  - RETINOL
+  - RETINYL PALMITATE
+  - GLYCOLIC ACID
+  - LACTIC ACID
+  - SALICYLIC ACID
+  - BENZOYL PEROXIDE
+  - AZELAIC ACID
+pregnancy_avoid:
+  - RETINOL
+  - RETINYL PALMITATE
+  - SALICYLIC ACID
+  - BENZOYL PEROXIDE
+fragrance_inci:
+  - PARFUM
+  - FRAGRANCE
+  - LIMONENE
+  - LINALOOL
+steps:
+  - id: am_cleanse
+    period: am
+    kind: cleanser
+    title: Gentle cleanse
+    instructions: "Use a small amount on wet skin, then rinse."
+    why: "A short cleanse is the first morning step."
+    prefer_inci: [GLYCERIN, PANTHENOL]
+
+  - id: am_treat
+    period: am
+    kind: treatment
+    title: Leave-on step
+    instructions: "A thin layer on dry skin. Skip it if your skin feels sore."
+    why: "Included because the latest scan estimated a concern above none."
+    prefer_inci: [NIACINAMIDE, PANTHENOL]
+    prefer_when_recovery: [CENTELLA ASIATICA EXTRACT, PANTHENOL]
+    prefer_when_pregnant: [NIACINAMIDE, PANTHENOL]
+    prefer_by_concern:
+      acne: [AZELAIC ACID, NIACINAMIDE]
+      blackheads_pores: [NIACINAMIDE, PANTHENOL]
+      pigmentation: [NIACINAMIDE, AZELAIC ACID]
+      redness: [CENTELLA ASIATICA EXTRACT, PANTHENOL]
+      texture: [NIACINAMIDE, PANTHENOL]
+    min_severity:
+      acne: mild
+      blackheads_pores: mild
+      pigmentation: mild
+      redness: mild
+      texture: mild
+
+  - id: am_moisturize
+    period: am
+    kind: moisturizer
+    title: Moisturizer
+    instructions: "A small amount on damp skin."
+    why: "A moisturizer is the step after cleansing or a leave-on."
+    prefer_inci: [GLYCERIN, CERAMIDE NP]
+    prefer_by_concern:
+      dehydration: [SODIUM HYALURONATE, GLYCERIN]
+
+  - id: am_spf
+    period: am
+    kind: spf
+    title: Mineral sunscreen
+    instructions: "The last morning step, on skin that has dried. This app does not rate sun protection."
+    why: "A mineral filter example is the last morning step."
+    prefer_inci: [ZINC OXIDE, GLYCERIN]
+
+  - id: pm_cleanse
+    period: pm
+    kind: cleanser
+    title: Evening cleanse
+    instructions: "Use a small amount on dry or wet skin, then rinse."
+    why: "An evening cleanse removes the day before the later steps."
+    prefer_inci: [GLYCERIN, SQUALANE]
+
+  - id: pm_treat
+    period: pm
+    kind: treatment
+    title: Evening leave-on
+    instructions: "A thin layer. Skip it if your skin feels sore. This is not a dose."
+    why: "Included because the latest scan estimated fine lines above none."
+    prefer_inci: [RETINOL, SQUALANE]
+    prefer_when_recovery: [CENTELLA ASIATICA EXTRACT, PANTHENOL]
+    prefer_when_pregnant: [NIACINAMIDE, PANTHENOL]
+    prefer_by_concern:
+      fine_lines: [RETINOL, SQUALANE]
+    min_severity:
+      fine_lines: mild
+
+  - id: pm_moisturize
+    period: pm
+    kind: moisturizer
+    title: Evening moisturizer
+    instructions: "A small amount as the last evening step."
+    why: "A moisturizer closes the evening list."
+    prefer_inci: [CERAMIDE NP, SQUALANE]
+    prefer_by_concern:
+      dehydration: [SODIUM HYALURONATE, GLYCERIN]
+
+  - id: weekly_extra
+    period: weekly
+    kind: extra
+    title: Weekly extra
+    instructions: "At most one evening this week, instead of the other leave-on. Skip it if your skin feels sore."
+    why: "A weekly extra is only suggested when texture or pigmentation was estimated and the rest of the list has no retinoid."
+    prefer_inci: [GLYCOLIC ACID, LACTIC ACID]
+    min_severity:
+      texture: mild
+      pigmentation: mild
+    skip_when_recovery: true
+    skip_when_pregnant: true
+    skip_if_selected_inci: [RETINOL, RETINYL PALMITATE]

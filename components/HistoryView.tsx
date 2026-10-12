@@ -8,7 +8,7 @@ import { Badge, Button, Card, EmptyState, ScoreRing, Skeleton, cn } from "./ui";
 
 type ScanRow = {
   id: string;
-  overallScore: number;
+  overallScore: number | null;
   summary: string;
   source: string;
   metrics: { id: string; label: string; score: number }[];
@@ -96,14 +96,19 @@ export function HistoryView() {
   }
 
   const active = scans.find((s) => s.id === selected) ?? scans[0];
-  const scores = [...scans].reverse().map((s) => s.overallScore);
-  const max = Math.max(...scores, 1);
-  const min = Math.min(...scores, 0);
+  const chart = [...scans]
+    .reverse()
+    .map((s) => s.overallScore)
+    .filter((s): s is number => typeof s === "number");
+  const max = chart.length ? Math.max(...chart) : 1;
+  const min = chart.length ? Math.min(...chart) : 0;
   const prev =
     scans.length > 1
       ? scans[scans.findIndex((s) => s.id === active.id) + 1]
       : null;
-  const delta = prev ? active.overallScore - prev.overallScore : null;
+  const activeScore = typeof active.overallScore === "number" ? active.overallScore : null;
+  const prevScore = prev && typeof prev.overallScore === "number" ? prev.overallScore : null;
+  const delta = activeScore != null && prevScore != null ? activeScore - prevScore : null;
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
@@ -113,19 +118,25 @@ export function HistoryView() {
             <p className="text-sm font-semibold">Score trend</p>
             <Badge tone="zinc">{scans.length} scans</Badge>
           </div>
-          <div className="flex h-28 items-end gap-1.5">
-            {scores.map((s, i) => {
-              const h = ((s - min) / (max - min || 1)) * 100;
-              return (
-                <div
-                  key={i}
-                  className="flex-1 rounded-t-md bg-gradient-to-t from-emerald-600 to-teal-400 transition-all"
-                  style={{ height: `${Math.max(12, h)}%` }}
-                  title={`${s}`}
-                />
-              );
-            })}
-          </div>
+          {chart.length === 0 ? (
+            <p className="text-sm text-zinc-500">
+              No numeric scores in this history. Rejected photos stay in the list without a score.
+            </p>
+          ) : (
+            <div className="flex h-28 items-end gap-1.5">
+              {chart.map((s, i) => {
+                const h = ((s - min) / (max - min || 1)) * 100;
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-t-md bg-gradient-to-t from-emerald-600 to-teal-400 transition-all"
+                    style={{ height: `${Math.max(12, h)}%` }}
+                    title={`${s}`}
+                  />
+                );
+              })}
+            </div>
+          )}
         </Card>
 
         <ul className="space-y-2">
@@ -145,7 +156,7 @@ export function HistoryView() {
                   )}
                 >
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900 text-sm font-semibold tabular-nums text-white">
-                    {s.overallScore}
+                    {typeof s.overallScore === "number" ? s.overallScore : "—"}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
@@ -177,7 +188,11 @@ export function HistoryView() {
 
       <Card elevated className="h-fit p-5 lg:sticky lg:top-20">
         <div className="flex flex-col items-center text-center">
-          <ScoreRing score={active.overallScore} />
+          {typeof active.overallScore === "number" ? (
+            <ScoreRing score={active.overallScore} />
+          ) : (
+            <p className="text-4xl font-semibold text-zinc-300">—</p>
+          )}
           <p className="mt-3 text-sm font-semibold">Selected scan</p>
           <p className="mt-1 text-xs text-zinc-500">
             {new Date(active.createdAt).toLocaleString()}
@@ -215,7 +230,9 @@ export function HistoryView() {
           </Button>
           <Link
             href={`/chat?q=${encodeURIComponent(
-              `Explain my scan from ${new Date(active.createdAt).toLocaleDateString()} with score ${active.overallScore}`
+              typeof active.overallScore === "number"
+                ? `Explain my scan from ${new Date(active.createdAt).toLocaleDateString()} with score ${active.overallScore}`
+                : `Explain my scan from ${new Date(active.createdAt).toLocaleDateString()}. It has no single score.`
             )}`}
             className="block"
           >

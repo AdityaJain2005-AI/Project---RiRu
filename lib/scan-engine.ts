@@ -24,7 +24,7 @@ export type Ingredient = {
 };
 
 export type ScanPayload = {
-  overallScore: number;
+  overallScore: number | null;
   metrics: Metric[];
   concerns: Concern[];
   ingredients: Ingredient[];

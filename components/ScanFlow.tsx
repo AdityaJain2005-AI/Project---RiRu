@@ -2,49 +2,154 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Camera,
   Check,
   ImagePlus,
   Loader2,
-  Sparkles,
   Upload,
   Video,
   VideoOff,
 } from "lucide-react";
-import { Badge, Button, Card, ScoreRing, cn } from "./ui";
+import { Badge, Button, Card, cn } from "./ui";
 
-type Step = "ready" | "live" | "capturing" | "analyzing" | "done";
+type Finding = {
+  concern: string;
+  severity: string;
+  confidence: number;
+  explanation: string;
+  escalate: boolean;
+  region: {
+    zone: string;
+    space: string;
+    box: { x: number; y: number; w: number; h: number } | null;
+  };
+};
+
+type ScanResult = {
+  id: string;
+  status: "queued" | "running" | "succeeded" | "failed" | "rejected_quality";
+  skinType: string | null;
+  skinTypeConfidence: number | null;
+  quality: { accepted: boolean; reasons: string[] } | null;
+  findings: Finding[];
+  summary: string;
+  imageStored: boolean;
+  disclaimer: string;
+  escalation: string | null;
+};
+
+type Step = "ready" | "live" | "uploading" | "analyzing" | "done";
+
+const REASONS: Record<string, string> = {
+  no_face: "No face was detected.",
+  multiple_faces: "More than one face was in the frame.",
+  too_dark: "The photo is too dark.",
+  too_bright: "The photo is too bright.",
+  blurry: "The photo is blurry.",
+  off_center: "The face is turned too far or not centered.",
+  face_too_small: "Move closer so the face fills more of the frame.",
+  clipped: "Part of the face is cut off.",
+};
+
+function previewHint(video: HTMLVideoElement | null): string {
+  const prefix = "Preview only. The server decides.";
+  if (!video || video.videoWidth === 0) return prefix;
+  const canvas = document.createElement("canvas");
+  const width = 80;
+  const height = 80;
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return prefix;
+  ctx.drawImage(video, 0, 0, width, height);
+  const data = ctx.getImageData(0, 0, width, height).data;
+  const gray = new Float32Array(width * height);
+  let sum = 0;
+  for (let i = 0; i < width * height; i++) {
+    const value = (data[i * 4] + data[i * 4 + 1] + data[i * 4 + 2]) / 3;
+    gray[i] = value;
+    sum += value;
+  }
+  const mean = sum / (width * height);
+  let energy = 0;
+  let count = 0;
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const i = y * width + x;
+      const lap = -4 * gray[i] + gray[i - 1] + gray[i + 1] + gray[i - width] + gray[i + width];
+      energy += lap * lap;
+      count++;
+    }
+  }
+  if (mean < 45) return `${prefix} This frame looks dark.`;
+  if (mean > 210) return `${prefix} This frame looks bright.`;
+  if (energy / count < 40) return `${prefix} This frame looks soft or blurry.`;
+  return `${prefix} Lighting looks usable from here.`;
+}
+
+async function pollScan(id: string): Promise<ScanResult> {
+  const started = Date.now();
+  while (Date.now() - started < 60_000) {
+    const res = await fetch(`/api/v1/scans/${id}`, { cache: "no-store" });
+    const json = (await res.json()) as ScanResult & { error?: { message?: string } };
+    if (!res.ok) throw new Error(json.error?.message || "Scan failed");
+    if (json.status === "succeeded" || json.status === "rejected_quality" || json.status === "failed") {
+      return json;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 800));
+  }
+  throw new Error("The scan is still running. Open history in a minute. No score was invented.");
+}
 
 export function ScanFlow() {
-  const router = useRouter();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
+  const previewRef = React.useRef<string | null>(null);
   const [step, setStep] = React.useState<Step>("ready");
-  const [source, setSource] = React.useState<"camera" | "upload">("camera");
+  const [ack, setAck] = React.useState(false);
+  const [storeImage, setStoreImage] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [camError, setCamError] = React.useState<string | null>(null);
-  const [result, setResult] = React.useState<{
-    id: string;
-    overallScore: number;
-    summary: string;
-    metrics: { label: string; score: number }[];
-  } | null>(null);
+  const [hint, setHint] = React.useState("Preview only. The server decides.");
+  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+  const [result, setResult] = React.useState<ScanResult | null>(null);
 
   React.useEffect(() => {
     return () => {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
     };
   }, []);
 
+  React.useEffect(() => {
+    if (step !== "live") return;
+    const id = window.setInterval(() => setHint(previewHint(videoRef.current)), 400);
+    return () => window.clearInterval(id);
+  }, [step]);
+
+  function rememberPreview(blob: Blob) {
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+    const url = URL.createObjectURL(blob);
+    previewRef.current = url;
+    setPreviewUrl(url);
+  }
+
+  function stopCamera() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+  }
+
   async function startCamera() {
-    setCamError(null);
     setError(null);
+    if (!ack) {
+      setError("Confirm the notice before the camera opens.");
+      return;
+    }
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        setCamError("Camera not available in this browser — use mesh or upload.");
+        setError("This browser has no camera. Upload a photo instead.");
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -53,7 +158,6 @@ export function ScanFlow() {
       });
       streamRef.current = stream;
       setStep("live");
-      // attach after paint
       requestAnimationFrame(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -61,116 +165,137 @@ export function ScanFlow() {
         }
       });
     } catch {
-      setCamError("Camera permission denied — use mesh scan or upload a photo.");
+      setError("Camera permission was denied. You can upload a photo instead.");
     }
   }
 
-  function stopCamera() {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
-    if (videoRef.current) videoRef.current.srcObject = null;
+  async function submit(blob: Blob, source: "camera" | "upload") {
+    if (!ack) {
+      setError("Confirm the notice before a photo is sent.");
+      setStep("ready");
+      return;
+    }
+    if (blob.size > 8 * 1024 * 1024) {
+      setError("That photo is larger than 8 MB.");
+      setStep("ready");
+      return;
+    }
+    setError(null);
+    setResult(null);
+    rememberPreview(blob);
+    setStep("uploading");
+    const body = new FormData();
+    body.set("image", blob, source === "camera" ? "frame.jpg" : "photo");
+    body.set("source", source);
+    body.set("disclaimerAck", "true");
+    body.set("storeImage", storeImage ? "true" : "false");
+    try {
+      const res = await fetch("/api/v1/scans", {
+        method: "POST",
+        headers: { "Idempotency-Key": crypto.randomUUID() },
+        body,
+      });
+      const json = (await res.json()) as {
+        scan?: { id: string };
+        error?: { message?: string };
+      };
+      if (!res.ok || !json.scan?.id) {
+        throw new Error(json.error?.message || "Scan failed");
+      }
+      setStep("analyzing");
+      const scan = await pollScan(json.scan.id);
+      setResult(scan);
+      setStep("done");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Scan failed");
+      setStep("ready");
+    }
   }
 
-  function captureFrame(): {
-    captured: boolean;
-    imageMeta?: { width: number; height: number; bytes: number };
-  } {
+  async function captureAndSubmit() {
     const video = videoRef.current;
-    if (!video || !video.videoWidth) return { captured: false };
+    if (!video || !video.videoWidth) {
+      setError("The camera has no frame yet.");
+      return;
+    }
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return { captured: false };
+    if (!ctx) return;
     ctx.drawImage(video, 0, 0);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-    return {
-      captured: true,
-      imageMeta: {
-        width: canvas.width,
-        height: canvas.height,
-        bytes: Math.round((dataUrl.length * 3) / 4),
-      },
-    };
-  }
-
-  async function run(
-    src: "camera" | "upload",
-    opts?: { fileName?: string; fromLive?: boolean }
-  ) {
-    setSource(src);
-    setError(null);
-    setStep("capturing");
-
-    let captured = false;
-    let imageMeta: { width?: number; height?: number; bytes?: number } | undefined;
-
-    if (opts?.fromLive) {
-      const frame = captureFrame();
-      captured = frame.captured;
-      imageMeta = frame.imageMeta;
-      stopCamera();
-    }
-
-    await new Promise((r) => setTimeout(r, 700));
-    setStep("analyzing");
-    try {
-      const res = await fetch("/api/scans", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          source: src,
-          fileName: opts?.fileName,
-          captured,
-          imageMeta,
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Scan failed");
-      setResult({
-        id: json.scan.id,
-        overallScore: json.scan.overallScore,
-        summary: json.scan.summary,
-        metrics: (json.scan.metrics ?? []).map(
-          (m: { label: string; score: number }) => ({
-            label: m.label,
-            score: m.score,
-          })
-        ),
-      });
-      setStep("done");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Scan failed");
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob((value) => resolve(value), "image/jpeg", 0.85);
+    });
+    stopCamera();
+    if (!blob) {
+      setError("Could not read a frame from the camera.");
       setStep("ready");
+      return;
     }
+    await submit(blob, "camera");
   }
+
+  function reset() {
+    stopCamera();
+    setResult(null);
+    setError(null);
+    setStep("ready");
+  }
+
+  const stepIndex =
+    step === "ready" ? 0 : step === "live" || step === "uploading" ? 1 : step === "analyzing" ? 2 : 3;
+  const boxes =
+    result?.status === "succeeded"
+      ? result.findings.filter((item) => item.severity !== "none" && item.region.box)
+      : [];
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
       <input
         ref={fileRef}
         type="file"
-        accept="image/*"
-        capture="user"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) void run("upload", { fileName: f.name });
-          e.target.value = "";
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (!file) return;
+          if (!ack) {
+            setError("Confirm the notice before a photo is sent.");
+            return;
+          }
+          void submit(file, "upload");
         }}
       />
 
+      <Card className="space-y-3 p-4">
+        <label className="flex items-start gap-2 text-sm text-zinc-700">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={ack}
+            onChange={(event) => setAck(event.target.checked)}
+          />
+          <span>I understand this is informational only, not a medical diagnosis.</span>
+        </label>
+        <label className="flex items-start gap-2 text-sm text-zinc-600">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={storeImage}
+            onChange={(event) => setStoreImage(event.target.checked)}
+          />
+          <span>
+            Keep a private copy of this photo. Off by default. If storage is not configured, the
+            photo is still discarded and the scan continues.
+          </span>
+        </label>
+      </Card>
+
       <ol className="flex items-center justify-between gap-2">
-        {["Ready", "Capture", "Analyze", "Results"].map((label, i) => {
-          const idx =
-            step === "ready"
-              ? 0
-              : step === "live" || step === "capturing"
-                ? 1
-                : step === "analyzing"
-                  ? 2
-                  : 3;
-          const on = i <= idx;
+        {["Ready", "Capture", "Analyze", "Results"].map((label, index) => {
+          const on = index <= stepIndex;
           return (
             <li key={label} className="flex flex-1 flex-col items-center gap-1.5">
               <span
@@ -179,14 +304,9 @@ export function ScanFlow() {
                   on ? "bg-emerald-600 text-white" : "bg-zinc-200 text-zinc-500"
                 )}
               >
-                {i < idx ? <Check className="h-3.5 w-3.5" /> : i + 1}
+                {index < stepIndex ? <Check className="h-3.5 w-3.5" /> : index + 1}
               </span>
-              <span
-                className={cn(
-                  "text-[10px] font-medium",
-                  on ? "text-zinc-800" : "text-zinc-400"
-                )}
-              >
+              <span className={cn("text-[10px] font-medium", on ? "text-zinc-800" : "text-zinc-400")}>
                 {label}
               </span>
             </li>
@@ -195,8 +315,12 @@ export function ScanFlow() {
       </ol>
 
       <Card elevated className="overflow-hidden p-0">
-        <div className="relative aspect-[4/5] bg-gradient-to-b from-zinc-100 via-zinc-50 to-emerald-50/50">
-          {/* live camera */}
+        <div
+          className={cn(
+            "relative bg-gradient-to-b from-zinc-100 via-zinc-50 to-emerald-50/50",
+            previewUrl && step !== "live" ? "min-h-48" : "aspect-[4/5]"
+          )}
+        >
           {step === "live" && (
             <video
               ref={videoRef}
@@ -206,119 +330,87 @@ export function ScanFlow() {
               className="absolute inset-0 h-full w-full object-cover"
             />
           )}
-
-          {step !== "live" && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative h-[72%] w-[62%]">
-                <div className="absolute inset-0 rounded-[45%] bg-gradient-to-b from-stone-200/90 via-stone-100 to-stone-200/70 shadow-inner" />
-                <div className="absolute left-[28%] top-[38%] h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.7)]" />
-                <div className="absolute right-[28%] top-[38%] h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.7)]" />
-                <div className="absolute inset-[10%] rounded-[42%] border border-dashed border-emerald-400/35" />
-                {(step === "capturing" || step === "analyzing") && (
-                  <div className="absolute inset-x-4 top-[12%] h-0.5 animate-facelab-scan bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
-                )}
-              </div>
-            </div>
+          {previewUrl && step !== "live" && (
+            <img src={previewUrl} alt="Photo held in this browser" className="block h-auto w-full" />
           )}
-
-          {[
-            "left-4 top-4 border-l-2 border-t-2",
-            "right-4 top-4 border-r-2 border-t-2",
-            "bottom-4 left-4 border-b-2 border-l-2",
-            "bottom-4 right-4 border-b-2 border-r-2",
-          ].map((p) => (
-            <div
-              key={p}
-              className={cn("absolute h-7 w-7 rounded-sm border-emerald-500/70", p)}
-            />
-          ))}
-
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/85 to-transparent px-5 pb-5 pt-16">
+          {boxes.length > 0 && previewUrl && step !== "live" && (
+            <svg
+              className="pointer-events-none absolute inset-0 h-full w-full"
+              viewBox="0 0 1 1"
+              preserveAspectRatio="none"
+            >
+              {boxes.map((item) =>
+                item.region.box ? (
+                  <rect
+                    key={item.concern}
+                    x={item.region.box.x}
+                    y={item.region.box.y}
+                    width={item.region.box.w}
+                    height={item.region.box.h}
+                    fill="none"
+                    stroke="rgb(5, 150, 105)"
+                    strokeWidth={0.008}
+                  />
+                ) : null
+              )}
+            </svg>
+          )}
+          {(step === "ready" || step === "live") && (
+            <div className="pointer-events-none absolute inset-[14%] rounded-[46%] border border-dashed border-emerald-500/80" />
+          )}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/90 to-transparent px-5 pb-5 pt-16">
             {step === "ready" && (
               <p className="text-center text-sm text-zinc-600">
-                Use your real camera, mesh preview, or a photo. Scores save to
-                history.
+                Use the camera or a photo. The server checks the frame. This is not a measurement.
               </p>
             )}
-            {step === "live" && (
-              <p className="text-center text-sm font-medium text-zinc-700">
-                Align your face · then capture
-              </p>
-            )}
-            {step === "capturing" && (
+            {step === "live" && <p className="text-center text-sm font-medium text-zinc-700">{hint}</p>}
+            {(step === "uploading" || step === "analyzing") && (
               <p className="flex items-center justify-center gap-2 text-sm font-medium text-zinc-700">
                 <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-                Capturing frame…
-              </p>
-            )}
-            {step === "analyzing" && (
-              <p className="flex items-center justify-center gap-2 text-sm font-medium text-zinc-700">
-                <Sparkles className="h-4 w-4 text-emerald-600" />
-                Reading hydration, barrier, tone…
+                {step === "uploading" ? "Sending the photo…" : "Checking the photo…"}
               </p>
             )}
             {step === "done" && result && (
-              <div className="flex items-center justify-center gap-4">
-                <ScoreRing score={result.overallScore} size={100} stroke={8} />
-                <div className="min-w-0 flex-1">
-                  <Badge tone="emerald">Saved to history</Badge>
-                  <p className="mt-1 text-sm font-semibold text-zinc-900">
-                    Score {result.overallScore}
-                  </p>
-                  <p className="mt-0.5 line-clamp-3 text-xs text-zinc-500">
-                    {result.summary}
-                  </p>
-                </div>
-              </div>
+              <p className="text-center text-sm font-medium text-zinc-800">
+                {result.status === "succeeded"
+                  ? "Baseline visual estimate"
+                  : result.status === "rejected_quality"
+                    ? "Photo not accepted"
+                    : "Analysis did not finish"}
+              </p>
             )}
           </div>
         </div>
 
         <div className="space-y-3 p-5">
-          {(error || camError) && (
-            <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">
-              {error || camError}
-            </p>
+          {error && (
+            <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
           )}
 
           {step === "ready" && (
-            <div className="grid gap-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               <Button size="lg" className="w-full" onClick={() => void startCamera()}>
                 <Video className="h-4 w-4" />
                 Open live camera
               </Button>
-              <div className="grid gap-2 sm:grid-cols-2">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => void run("camera")}
-                >
-                  <Camera className="h-4 w-4" />
-                  Mesh scan
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => fileRef.current?.click()}
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload photo
-                </Button>
-              </div>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full"
+                onClick={() => fileRef.current?.click()}
+              >
+                <Upload className="h-4 w-4" />
+                Upload photo
+              </Button>
             </div>
           )}
 
           {step === "live" && (
             <div className="grid gap-2 sm:grid-cols-2">
-              <Button
-                size="lg"
-                className="w-full"
-                onClick={() => void run("camera", { fromLive: true })}
-              >
+              <Button size="lg" className="w-full" onClick={() => void captureAndSubmit()}>
                 <Camera className="h-4 w-4" />
-                Capture & analyze
+                Capture and analyze
               </Button>
               <Button
                 size="lg"
@@ -335,7 +427,7 @@ export function ScanFlow() {
             </div>
           )}
 
-          {(step === "capturing" || step === "analyzing") && (
+          {(step === "uploading" || step === "analyzing") && (
             <Button size="lg" className="w-full" disabled>
               <Loader2 className="h-4 w-4 animate-spin" />
               Working…
@@ -344,48 +436,70 @@ export function ScanFlow() {
 
           {step === "done" && result && (
             <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-2">
-                {result.metrics.slice(0, 3).map((m) => (
-                  <div
-                    key={m.label}
-                    className="rounded-xl bg-zinc-50 px-2 py-2 text-center ring-1 ring-zinc-100"
-                  >
-                    <p className="text-sm font-semibold tabular-nums">{m.score}</p>
-                    <p className="text-[10px] text-zinc-400">{m.label}</p>
-                  </div>
-                ))}
-              </div>
+              {result.status === "succeeded" && result.skinType && (
+                <p className="text-sm text-zinc-700">
+                  Visual skin-type guess: <span className="font-semibold">{result.skinType}</span>
+                  {result.skinTypeConfidence != null
+                    ? ` (${Math.round(result.skinTypeConfidence * 100)}% confidence, capped at 55%)`
+                    : ""}
+                  . Sensitive skin is taken from your profile, not from the photo.
+                </p>
+              )}
+              {result.quality && !result.quality.accepted && (
+                <ul className="list-disc space-y-1 pl-5 text-sm text-zinc-700">
+                  {result.quality.reasons.map((reason) => (
+                    <li key={reason}>{REASONS[reason] ?? reason}</li>
+                  ))}
+                </ul>
+              )}
+              <p className="text-sm leading-relaxed text-zinc-600">{result.summary}</p>
+              {result.escalation && (
+                <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-800">
+                  {result.escalation}
+                </p>
+              )}
+              {result.status === "succeeded" && (
+                <ul className="space-y-2">
+                  {result.findings
+                    .filter((item) => item.severity !== "none" || item.concern === "acne")
+                    .map((item) => (
+                      <li key={item.concern} className="rounded-xl bg-zinc-50 px-3 py-2 ring-1 ring-zinc-100">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-medium capitalize text-zinc-900">
+                            {item.concern.replaceAll("_", " ")}
+                          </p>
+                          <Badge tone={item.severity === "severe" ? "rose" : item.severity === "none" ? "zinc" : "emerald"}>
+                            {item.severity}
+                          </Badge>
+                        </div>
+                        <p className="mt-1 text-xs leading-relaxed text-zinc-500">{item.explanation}</p>
+                      </li>
+                    ))}
+                </ul>
+              )}
+              <p className="text-xs text-zinc-500">
+                {result.imageStored
+                  ? "A private copy of the photo was stored."
+                  : "The photo was not kept on the server. This preview stays in the browser until you leave."}
+              </p>
+              <p className="text-xs text-zinc-500">{result.disclaimer}</p>
               <div className="grid gap-2 sm:grid-cols-2">
-                <Button
-                  size="lg"
-                  className="w-full"
-                  onClick={() =>
-                    router.push(`/dashboard?scanId=${result.id}`)
-                  }
-                >
-                  Open in lab
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    setResult(null);
-                    setStep("ready");
-                  }}
-                >
+                <Link href={`/dashboard?scanId=${result.id}`}>
+                  <Button size="lg" className="w-full">
+                    Open in lab
+                  </Button>
+                </Link>
+                <Button size="lg" variant="outline" className="w-full" onClick={reset}>
                   Scan again
                 </Button>
               </div>
               <p className="text-center text-xs text-zinc-400">
-                Source: {source}
-                {" · "}
                 <Link href="/history" className="text-emerald-700 hover:underline">
                   History
                 </Link>
                 {" · "}
                 <Link
-                  href={`/chat?q=${encodeURIComponent("Explain my latest scan results")}`}
+                  href={`/chat?q=${encodeURIComponent("Explain my latest face estimate. Do not invent a score.")}`}
                   className="text-emerald-700 hover:underline"
                 >
                   Ask AI
@@ -398,8 +512,8 @@ export function ScanFlow() {
 
       <div className="flex items-start gap-2 rounded-2xl border border-zinc-200/70 bg-white/80 px-4 py-3 text-xs text-zinc-500">
         <ImagePlus className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-        Live camera captures a real frame for metadata; biomarkers are analyzed
-        and stored in PostgreSQL. Works without a camera via mesh or upload.
+        The live hint is advisory. The server accepts or rejects the photo. There is no single
+        0–100 score for this estimate.
       </div>
     </div>
   );

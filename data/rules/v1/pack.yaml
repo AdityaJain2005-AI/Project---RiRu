@@ -1,0 +1,86 @@
+# Versioned rule pack. Contributors edit this file. The SQL ingredient_rules table stays empty.
+# kind: nuance attaches a message and must not raise the verdict. The engine ignores effect.verdict for nuance.
+# Pregnancy rules are conservative. They do not compute a dose.
+# unless_profile.recovery_active skips that rule while a recovery row is active. This pack does not build a routine.
+version: v1
+rules:
+  - rule_key: retinol_plus_aha
+    version: v1
+    kind: conflict
+    source: "Standard cosmetic-chemistry caution. Not a clinical guideline."
+    when:
+      all_present: ["retinol"]
+      any_present: ["glycolic acid", "lactic acid"]
+    unless_profile:
+      recovery_active: true
+    effect:
+      verdict: caution
+      message: "Retinol is listed with glycolic acid or lactic acid. Using them together raises irritation for many people. This is a standard cosmetic-chemistry caution, not a clinical guideline."
+
+  - rule_key: retinol_plus_salicylic
+    version: v1
+    kind: conflict
+    source: "Standard cosmetic-chemistry caution. Not a clinical guideline."
+    when:
+      all_present: ["retinol", "salicylic acid"]
+    effect:
+      verdict: caution
+      message: "Retinol is listed with salicylic acid. Using them together raises irritation for many people. This is a standard cosmetic-chemistry caution, not a clinical guideline."
+
+  - rule_key: retinoid_pregnancy
+    version: v1
+    kind: profile
+    source: "Conservative pregnancy flag. Not a clinical guideline. No dose is computed."
+    when:
+      any_present: ["retinol", "retinyl palmitate"]
+    requires_profile:
+      pregnant_or_feeding: true
+    effect:
+      verdict: avoid
+      message: "A retinoid is listed, and the profile says pregnant or feeding. Follow your clinician. This app does not compute a dose."
+
+  - rule_key: salicylic_pregnancy
+    version: v1
+    kind: profile
+    source: "Conservative pregnancy flag. Not a clinical guideline. No dose is computed."
+    when:
+      all_present: ["salicylic acid"]
+    requires_profile:
+      pregnant_or_feeding: true
+    effect:
+      verdict: avoid
+      message: "Salicylic acid is listed, and the profile says pregnant or feeding. This flag is conservative. Follow your clinician. This app does not compute a dose."
+
+  - rule_key: benzoyl_peroxide_pregnancy
+    version: v1
+    kind: profile
+    source: "Conservative pregnancy flag. Not a clinical guideline. No dose is computed."
+    when:
+      all_present: ["benzoyl peroxide"]
+    requires_profile:
+      pregnant_or_feeding: true
+    effect:
+      verdict: avoid
+      message: "Benzoyl peroxide is listed, and the profile says pregnant or feeding. This flag is conservative. Follow your clinician. This app does not compute a dose."
+
+  - rule_key: vitamin_c_niacinamide
+    version: v1
+    kind: nuance
+    source: "Cosmetic-chemistry note. Not a clinical guideline."
+    when:
+      all_present: ["ascorbic acid", "niacinamide"]
+    effect:
+      verdict: good_fit
+      message: "Ascorbic acid and niacinamide are both listed. The old claim that they must never be mixed is overstated at cosmetic pH. Irritation is still possible, including on a damaged barrier."
+
+  - rule_key: fragrance_when_sensitive
+    version: v1
+    kind: profile
+    source: "Profile preference. Not a clinical guideline."
+    when:
+      any_present: ["parfum", "fragrance", "limonene", "linalool"]
+    requires_profile:
+      fragrance_sensitive: true
+    effect:
+      verdict: caution
+      message: "A fragrance material is listed, and the profile says fragrance-sensitive."

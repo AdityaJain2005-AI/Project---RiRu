@@ -10,12 +10,14 @@ import {
   ListChecks,
   MessageCircle,
   History,
+  Tags,
 } from "lucide-react";
 import { cn } from "./ui";
 
 const NAV = [
   { href: "/", label: "Home", icon: Home },
   { href: "/scan", label: "Scan", icon: Camera },
+  { href: "/ingredients", label: "Label", icon: Tags },
   { href: "/dashboard", label: "Lab", icon: LayoutDashboard },
   { href: "/routine", label: "Routine", icon: ListChecks },
   { href: "/history", label: "History", icon: History },
@@ -58,7 +60,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "inline-flex h-9 items-center gap-1.5 rounded-xl px-3 text-sm font-medium transition-colors",
+                    "inline-flex h-9 items-center gap-1.5 rounded-xl px-2 text-sm font-medium transition-colors",
                     active
                       ? "bg-zinc-900 text-white"
                       : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
@@ -87,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/70 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
-        <ul className="mx-auto grid max-w-xl grid-cols-6 px-0.5 py-1.5">
+        <ul className="mx-auto grid max-w-xl grid-cols-7 px-0.5 py-1.5">
           {NAV.map((item) => {
             const active =
               item.href === "/"

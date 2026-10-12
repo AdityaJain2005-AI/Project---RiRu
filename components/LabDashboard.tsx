@@ -16,7 +16,6 @@ import {
   Sparkles,
   Sun,
   Trash2,
-  Upload,
   Waves,
 } from "lucide-react";
 import {
@@ -72,20 +71,19 @@ export function LabDashboard() {
   const [tab, setTab] = React.useState<"overview" | "concerns" | "ingredients">(
     "overview"
   );
-  const [busy, setBusy] = React.useState(false);
   const [planBusy, setPlanBusy] = React.useState(false);
   const [data, setData] = React.useState<{
     user: { name: string; initials: string; skinType: string; streakDays: number };
     scan: {
       id: string;
-      overallScore: number;
+      overallScore: number | null;
       metrics: Metric[];
       concerns: Concern[];
       ingredients: Ingredient[];
       summary: string;
       lastScanLabel: string;
     } | null;
-    history: { score: number }[];
+    history: { score: number | null }[];
     notifications: { id: string; title: string; body: string; read: boolean }[];
   } | null>(null);
   const [notifOpen, setNotifOpen] = React.useState(false);
@@ -95,8 +93,6 @@ export function LabDashboard() {
   const [selectedConcern, setSelectedConcern] = React.useState<string | null>(
     null
   );
-  const fileRef = React.useRef<HTMLInputElement>(null);
-
   const load = React.useCallback(async () => {
     setError(null);
     try {
@@ -128,27 +124,6 @@ export function LabDashboard() {
   function flash(msg: string) {
     setToast(msg);
     window.setTimeout(() => setToast(null), 2800);
-  }
-
-  async function scan(source: "camera" | "upload", fileName?: string) {
-    setBusy(true);
-    try {
-      await new Promise((r) => setTimeout(r, 1000));
-      const res = await fetch("/api/scans", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source, fileName }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Scan failed");
-      flash(`Scan saved · score ${json.scan.overallScore}`);
-      router.replace("/dashboard");
-      await load();
-    } catch (e) {
-      flash(e instanceof Error ? e.message : "Scan failed");
-    } finally {
-      setBusy(false);
-    }
   }
 
   async function toggleFav(ing: Ingredient) {
@@ -248,7 +223,7 @@ export function LabDashboard() {
   }
 
   const scanData = data.scan;
-  const score = scanData?.overallScore ?? 0;
+  const score = typeof scanData?.overallScore === "number" ? scanData.overallScore : null;
   const metrics = scanData?.metrics ?? [];
   const concerns = scanData?.concerns ?? [];
   const ingredients = scanData?.ingredients ?? [];
@@ -259,18 +234,6 @@ export function LabDashboard() {
 
   return (
     <div>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) void scan("upload", f.name);
-          e.target.value = "";
-        }}
-      />
-
       {toast && (
         <div className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-2xl bg-zinc-900 px-4 py-2.5 text-sm text-white shadow-xl md:bottom-8">
           {toast}
@@ -448,12 +411,8 @@ export function LabDashboard() {
               )}
             </div>
             <Link href="/scan">
-              <Button disabled={busy} type="button">
-                {busy ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Camera className="h-4 w-4" />
-                )}
+              <Button type="button">
+                <Camera className="h-4 w-4" />
                 Scan
               </Button>
             </Link>
@@ -498,33 +457,30 @@ export function LabDashboard() {
                 <div className="space-y-2">
                   <Badge tone="teal">Scan · {scanData.lastScanLabel}</Badge>
                   <h2 className="text-xl font-semibold tracking-tight sm:text-2xl">
-                    Overall skin score{" "}
-                    <span className="text-emerald-600">{score}</span>
+                    {score == null ? (
+                      "No single score"
+                    ) : (
+                      <>
+                        Overall skin score{" "}
+                        <span className="text-emerald-600">{score}</span>
+                      </>
+                    )}
                   </h2>
+                  {score == null && (
+                    <p className="text-xs text-zinc-400">
+                      This scan does not have a 0–100 score. Informational only, not a medical diagnosis.
+                    </p>
+                  )}
                   <p className="max-w-md text-sm leading-relaxed text-zinc-500">
                     {scanData.summary}
                   </p>
                   <div className="flex flex-wrap gap-2 pt-1">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={busy}
-                      type="button"
-                      onClick={() => void scan("camera")}
-                    >
-                      <Camera className="h-3.5 w-3.5" />
-                      Quick rescan
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={busy}
-                      type="button"
-                      onClick={() => fileRef.current?.click()}
-                    >
-                      <Upload className="h-3.5 w-3.5" />
-                      Photo
-                    </Button>
+                    <Link href="/scan">
+                      <Button size="sm" variant="outline" type="button">
+                        <Camera className="h-3.5 w-3.5" />
+                        New scan
+                      </Button>
+                    </Link>
                     <Link
                       href={`/chat?q=${encodeURIComponent(
                         "Explain my latest skin score and what to focus on"
@@ -537,17 +493,21 @@ export function LabDashboard() {
                     </Link>
                   </div>
                 </div>
-                <ScoreRing score={score} />
+                {score != null ? (
+                  <ScoreRing score={score} />
+                ) : (
+                  <p className="text-4xl font-semibold text-zinc-300">—</p>
+                )}
               </div>
             </Card>
 
             <Card elevated className="p-5">
               <p className="mb-3 text-sm font-semibold">Score history</p>
               <div className="flex h-24 items-end gap-1.5">
-                {(data.history.length
-                  ? data.history.map((h) => h.score)
-                  : [score]
-                ).map((s, i, arr) => {
+                {data.history
+                  .map((item) => item.score)
+                  .filter((value): value is number => typeof value === "number")
+                  .map((s, i, arr) => {
                   const min = Math.min(...arr) - 2;
                   const max = Math.max(...arr) + 2;
                   const h = ((s - min) / (max - min || 1)) * 100;
@@ -596,7 +556,14 @@ export function LabDashboard() {
             ))}
           </div>
 
-          {tab === "overview" && (
+          {tab === "overview" && metrics.length === 0 && (
+            <p className="text-sm leading-relaxed text-zinc-500">
+              This scan has no 0–100 metrics. Read the summary and the Concerns tab.
+              Informational only, not a medical diagnosis.
+            </p>
+          )}
+
+          {tab === "overview" && metrics.length > 0 && (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {metrics.map((m) => {
                 const Icon = ICONS[m.id] ?? Activity;
@@ -682,13 +649,21 @@ export function LabDashboard() {
               </Card>
               <Card elevated className="p-5">
                 <Badge
-                  tone={active.severity === "Moderate" ? "amber" : "emerald"}
+                  tone={
+                    active.severity === "Severe"
+                      ? "rose"
+                      : active.severity === "Moderate"
+                        ? "amber"
+                        : active.severity === "None"
+                          ? "zinc"
+                          : "emerald"
+                  }
                 >
                   {active.severity}
                 </Badge>
                 <h3 className="mt-2 text-xl font-semibold">{active.title}</h3>
                 <p className="mt-1 text-sm text-zinc-500">
-                  Primarily on the {active.zone}. Model confidence{" "}
+                  Primarily on the {active.zone}. Estimate confidence{" "}
                   {Math.round(active.confidence * 100)}%.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">

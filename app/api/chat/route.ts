@@ -1,11 +1,21 @@
+import { DISCLAIMER } from "@riru/shared";
+import { requireActor } from "@/lib/actor";
 import { cosmetologistReply } from "@/lib/chat-engine";
-import { DEMO_USER_ID, query } from "@/lib/db";
+import { query } from "@/lib/db";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import type { ScanPayload } from "@/lib/scan-engine";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
+    const actor = await requireActor();
+    if (actor instanceof Response) return actor;
+    const userId = actor.userId;
+
+    const limited = await consumeRateLimit(userId, "chat", 30, 3_600);
+    if (!limited.ok) return rateLimitResponse(limited, "Too many messages this hour.");
+
     const body = (await req.json()) as { message?: string };
     const text = (body.message ?? "").trim();
     if (!text) {
@@ -14,11 +24,11 @@ export async function POST(req: Request) {
 
     await query(
       `INSERT INTO chat_messages (user_id, role, content) VALUES ($1, 'user', $2)`,
-      [DEMO_USER_ID, text]
+      [userId, text]
     );
 
     const scanRes = await query<{
-      overall_score: number;
+      overall_score: number | null;
       metrics: ScanPayload["metrics"];
       concerns: ScanPayload["concerns"];
       ingredients: ScanPayload["ingredients"];
@@ -26,8 +36,9 @@ export async function POST(req: Request) {
       source: string;
     }>(
       `SELECT overall_score, metrics, concerns, ingredients, summary, source
-       FROM skin_scans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
-      [DEMO_USER_ID]
+       FROM skin_scans WHERE user_id = $1 AND status = 'succeeded'
+       ORDER BY created_at DESC LIMIT 1`,
+      [userId]
     );
 
     const row = scanRes.rows[0];
@@ -43,10 +54,10 @@ export async function POST(req: Request) {
         }
       : null;
 
-    // Optional SpaceXAI / xAI if key present; otherwise rule engine.
+    const emptyMetrics = Boolean(scan && scan.metrics.length === 0);
     let reply = cosmetologistReply(text, scan);
     const apiKey = process.env.XAI_API_KEY;
-    if (apiKey) {
+    if (apiKey && !emptyMetrics) {
       try {
         const res = await fetch("https://api.x.ai/v1/chat/completions", {
           method: "POST",
@@ -81,11 +92,12 @@ export async function POST(req: Request) {
         // fall back to rule engine
       }
     }
+    if (!reply.includes(DISCLAIMER)) reply = `${reply} ${DISCLAIMER}`;
 
     const aiInsert = await query<{ id: string; created_at: string }>(
       `INSERT INTO chat_messages (user_id, role, content)
        VALUES ($1, 'ai', $2) RETURNING id, created_at`,
-      [DEMO_USER_ID, reply]
+      [userId, reply]
     );
 
     return Response.json({

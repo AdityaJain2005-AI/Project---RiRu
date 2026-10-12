@@ -1,0 +1,271 @@
+# Contributor catalog. The conflict check reads this file, not the SQL ingredients table.
+# A recommendation or a pasted price may insert the rows it references so a foreign key can point at them.
+# Irritancy ranks are coarse defaults for the rule engine. They are not measurements.
+# Comedogenicity is left null. A disputed textbook scale is not copied in as fact.
+# typical_range is null so this file does not state a dose or a percentage.
+version: 1
+ingredients:
+  - inci: AQUA
+    aliases: [WATER, EAU]
+    functions: [solvent]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "Water. The usual base of a water-based formula."
+    source: "INCI name AQUA. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: GLYCERIN
+    aliases: [GLYCEROL]
+    functions: [humectant]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A humectant used to hold water in a formula."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: NIACINAMIDE
+    aliases: [NICOTINAMIDE]
+    functions: [skin conditioning]
+    irritancy: 1
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A form of vitamin B3 used in leave-on products."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: SODIUM HYALURONATE
+    functions: [humectant]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A salt of hyaluronic acid used as a humectant. It is not the same ingredient as every 'hyaluronic acid' label line."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: ASCORBIC ACID
+    functions: [antioxidant]
+    irritancy: 2
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A form of vitamin C. Other vitamin C derivatives are different names and stay unparsed until they are added."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: RETINOL
+    functions: [skin conditioning]
+    irritancy: 3
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "Topical retinoids are commonly avoided during pregnancy and feeding. Follow your clinician. This app does not compute a dose."
+    avoid_if: [pregnant_or_feeding]
+    plain_description: "A retinoid used in leave-on products. This entry is not a dose and not a prescription."
+    source: "INCI name. Pregnancy flag is a conservative catalog rule, not a clinical guideline."
+
+  - inci: RETINYL PALMITATE
+    functions: [skin conditioning]
+    irritancy: 2
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "A retinoid ester. Commonly avoided during pregnancy and feeding. Follow your clinician. This app does not compute a dose."
+    avoid_if: [pregnant_or_feeding]
+    plain_description: "An ester of retinol. It is listed separately from retinol."
+    source: "INCI name. Pregnancy flag is a conservative catalog rule, not a clinical guideline."
+
+  - inci: GLYCOLIC ACID
+    functions: [exfoliant]
+    irritancy: 3
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "An alpha hydroxy acid. It can sting on irritated skin."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: SALICYLIC ACID
+    functions: [exfoliant]
+    irritancy: 3
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "Leave-on salicylic acid is flagged here as a conservative pregnancy choice. Follow your clinician. This app does not compute a dose."
+    avoid_if: [pregnant_or_feeding]
+    plain_description: "A beta hydroxy acid used in leave-on and rinse-off products."
+    source: "INCI name. Pregnancy flag is a conservative catalog rule, not a clinical guideline."
+
+  - inci: LACTIC ACID
+    functions: [exfoliant]
+    irritancy: 2
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "An alpha hydroxy acid."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: AZELAIC ACID
+    functions: [skin conditioning]
+    irritancy: 2
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A dicarboxylic acid used in leave-on products."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: CERAMIDE NP
+    functions: [skin conditioning]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A ceramide used in moisturizers. Other ceramide numbers are different names."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: TOCOPHEROL
+    functions: [antioxidant]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A form of vitamin E. Esters such as tocopheryl acetate are not this row."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: ZINC OXIDE
+    functions: [uv filter]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A mineral UV filter. This entry does not rate how well a product screens the sun."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: TITANIUM DIOXIDE
+    aliases: [CI 77891]
+    functions: [uv filter]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A mineral pigment and UV filter. The color-index alias is the same substance in many labels."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: PARFUM
+    functions: [fragrance]
+    irritancy: 2
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: [fragrance_sensitive]
+    plain_description: "A fragrance mixture. The ingredients inside the mixture are not listed."
+    source: "INCI name. Fragrance caution is a profile rule, not a measurement."
+
+  - inci: FRAGRANCE
+    functions: [fragrance]
+    irritancy: 2
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: [fragrance_sensitive]
+    plain_description: "The English label word for a fragrance mixture. Kept separate from PARFUM so either spelling matches."
+    source: "Label word used beside INCI. Fragrance caution is a profile rule, not a measurement."
+
+  - inci: LIMONENE
+    functions: [fragrance]
+    irritancy: 2
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: [fragrance_sensitive]
+    plain_description: "A fragrance material that labels often call out on its own."
+    source: "INCI name. Fragrance caution is a profile rule, not a measurement."
+
+  - inci: LINALOOL
+    functions: [fragrance]
+    irritancy: 2
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: [fragrance_sensitive]
+    plain_description: "A fragrance material that labels often call out on its own."
+    source: "INCI name. Fragrance caution is a profile rule, not a measurement."
+
+  - inci: PHENOXYETHANOL
+    functions: [preservative]
+    irritancy: 1
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A preservative used to keep a formula stable."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: BENZOYL PEROXIDE
+    aliases: [BPO]
+    functions: [antimicrobial]
+    irritancy: 4
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "Flagged here as a conservative pregnancy choice. Follow your clinician. This app does not compute a dose."
+    avoid_if: [pregnant_or_feeding, self_described_sensitive]
+    plain_description: "A leave-on ingredient that often stings or dries the skin. This entry is not a dose."
+    source: "INCI name. Pregnancy flag is a conservative catalog rule, not a clinical guideline."
+
+  - inci: PANTHENOL
+    functions: [skin conditioning]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A form of pantothenic acid used as a skin-conditioning agent."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: SQUALANE
+    functions: [emollient]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "An emollient. It is not the same name as squalene."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: CENTELLA ASIATICA EXTRACT
+    functions: [skin conditioning]
+    irritancy: 0
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: []
+    plain_description: "A plant extract. Other Centella names on a label are not this row."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: ALCOHOL DENAT.
+    functions: [solvent]
+    irritancy: 4
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: [self_described_sensitive]
+    plain_description: "Denatured alcohol. Fatty alcohols such as cetyl alcohol are different names and are not this row."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."
+
+  - inci: MENTHOL
+    functions: [fragrance]
+    irritancy: 4
+    comedogenicity: null
+    typical_range: null
+    pregnancy_note: "No pregnancy flag in this catalog. That is not a clearance."
+    avoid_if: [self_described_sensitive]
+    plain_description: "A cooling fragrance material that often stings on irritated skin."
+    source: "INCI name. Irritancy is a coarse catalog rank, not a measurement."

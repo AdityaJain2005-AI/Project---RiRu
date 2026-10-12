@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: riru
+      POSTGRES_PASSWORD: riru
+      POSTGRES_DB: riru
+    ports:
+      - "5432:5432"
+    volumes:
+      - riru-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U riru -d riru"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  ml:
+    build: ./services/ml
+    environment:
+      ML_SERVICE_TOKEN: dev-ml-token-change-me
+    ports:
+      - "8000:8000"
+
+  web:
+    image: node:22-bookworm
+    working_dir: /app
+    volumes:
+      - .:/app
+      - web-modules:/app/node_modules
+    command: sh -c "npm ci && node migrate.js && npm run dev"
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: riru
+      DB_PASS: riru
+      DB_NAME: riru
+      DATABASE_URL: postgresql://riru:riru@postgres:5432/riru
+      DEMO_MODE: "false"
+      SESSION_SECRET: dev-session-secret-change-me
+      ML_SERVICE_URL: http://ml:8000
+      ML_SERVICE_TOKEN: dev-ml-token-change-me
+      STORAGE_PROVIDER: none
+      LLM_PROVIDER: rules
+      GUEST_RETENTION_DAYS: "30"
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ml:
+        condition: service_started
+
+volumes:
+  riru-pg:
+  web-modules:

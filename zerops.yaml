@@ -72,6 +72,12 @@ zerops:
         DB_PORT: ${db_port}
         DB_USER: ${db_user}
         DB_PASS: ${db_password}
+        # Keeps the shared demo user until a SESSION_SECRET is set
+        # in Zerops and DEMO_MODE is changed to false.
+        DEMO_MODE: "true"
+        STORAGE_PROVIDER: none
+        LLM_PROVIDER: rules
+        GUEST_RETENTION_DAYS: "30"
 
       # Standalone server.js reads PORT env var automatically.
       start: node .next/standalone/server.js
@@ -116,6 +122,10 @@ zerops:
         DB_PORT: ${db_port}
         DB_USER: ${db_user}
         DB_PASS: ${db_password}
+        DEMO_MODE: "true"
+        STORAGE_PROVIDER: none
+        LLM_PROVIDER: rules
+        GUEST_RETENTION_DAYS: "30"
 
       # zsc noop keeps the container alive. The developer starts
       # `npm run dev` manually via SSH.

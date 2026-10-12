@@ -1,0 +1,438 @@
+// Target Prisma schema for RiRu.
+// NOT APPLIED. Phase 1 copies this file to prisma/schema.prisma.
+// The live database is still created by migrate.js.
+//
+// Existing columns on users, skin_scans, and chat_messages are mapped
+// so Prisma can read rows that are already in Zerops Postgres.
+// knowledge_chunks.embedding depends on pgvector. If the extension
+// cannot load, Phase 1 uses embedding_fallback and leaves embedding unused.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Greeting {
+  id      Int    @id
+  message String
+
+  @@map("greetings")
+}
+
+model User {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  initials       String
+  skinType       String    @default("Combination") @map("skin_type")
+  streakDays     Int       @default(1) @map("streak_days")
+  email          String?
+  authProvider   String    @default("guest") @map("auth_provider")
+  guestTokenHash String?   @unique @map("guest_token_hash")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz
+
+  profile          Profile?
+  prefs            UserPrefs?
+  consents         ConsentLog[]
+  scans            SkinScan[]
+  jobs             AnalysisJob[]
+  routines         Routine[]
+  checkIns         CheckIn[]
+  ingredientScans  IngredientScan[]
+  chatSessions     ChatSession[]
+  chatMessages     ChatMessage[]
+  notifications    Notification[]
+  feedback         FeedbackReport[]
+  recoveries       ProcedureRecovery[]
+  priceSubmissions PriceListing[]
+  rateLimits       RateLimitBucket[]
+
+  @@map("users")
+}
+
+model UserPrefs {
+  userId              String   @id @map("user_id") @db.Uuid
+  routinePhase        String   @default("am") @map("routine_phase")
+  favoriteIngredients Json     @default("[]") @map("favorite_ingredients")
+  settings            Json     @default("{}")
+  updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_prefs")
+}
+
+model Profile {
+  userId                 String   @id @map("user_id") @db.Uuid
+  ageRange               String   @default("undisclosed") @map("age_range")
+  skinGoals              Json     @default("[]") @map("skin_goals")
+  allergies              Json     @default("[]")
+  budget                 String   @default("any")
+  currency               String   @default("USD")
+  locale                 String   @default("en")
+  pregnantOrFeeding      Boolean  @default(false) @map("pregnant_or_feeding")
+  fragranceSensitive     Boolean  @default(false) @map("fragrance_sensitive")
+  selfDescribedSensitive Boolean  @default(false) @map("self_described_sensitive")
+  allowScanInChat        Boolean  @default(false) @map("allow_scan_in_chat")
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt              DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model ConsentLog {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  purpose       String
+  granted       Boolean
+  policyVersion String   @map("policy_version")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("consent_log")
+}
+
+model DeletionReceipt {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requestId   String   @unique @map("request_id")
+  completedAt DateTime @default(now()) @map("completed_at") @db.Timestamptz
+
+  @@map("deletion_receipts")
+}
+
+model SchemaFlag {
+  id              Int      @id
+  vectorAvailable Boolean  @map("vector_available")
+  checkedAt       DateTime @default(now()) @map("checked_at") @db.Timestamptz
+
+  @@map("schema_flags")
+}
+
+model SkinScan {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId              String    @map("user_id") @db.Uuid
+  overallScore        Int?      @map("overall_score")
+  metrics             Json
+  concerns            Json
+  ingredients         Json
+  summary             String    @default("")
+  source              String    @default("camera")
+  status              String    @default("succeeded")
+  modelVersion        String?   @map("model_version")
+  analysisKind        String    @default("heuristic_v0") @map("analysis_kind")
+  storeImage          Boolean   @default(false) @map("store_image")
+  imageRef            String?   @map("image_ref")
+  imageExpiresAt      DateTime? @map("image_expires_at") @db.Timestamptz
+  quality             Json?
+  skinType            String?   @map("skin_type")
+  skinTypeConfidence  Float?    @map("skin_type_confidence")
+  zones               Json?
+  disclaimerAck       Boolean   @default(false) @map("disclaimer_ack")
+  idempotencyKey      String?   @map("idempotency_key")
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  findings ScanFinding[]
+  jobs     AnalysisJob[]
+  routines Routine[]
+
+  // Partial unique index skin_scans_user_idempotency_idx is created in SQL.
+  // A Prisma @@unique would reject multiple legacy rows whose key is null.
+  @@index([userId, createdAt(sort: Desc)], map: "skin_scans_user_created_idx")
+  @@map("skin_scans")
+}
+
+model ScanFinding {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  scanId      String   @map("scan_id") @db.Uuid
+  concern     String
+  severity    String
+  confidence  Float
+  region      Json     @default("{}")
+  explanation String
+  escalate    Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  scan        SkinScan @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@index([scanId])
+  @@map("scan_findings")
+}
+
+model AnalysisJob {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  kind             String
+  status           String
+  idempotencyKey   String?   @map("idempotency_key")
+  scanId           String?   @map("scan_id") @db.Uuid
+  ingredientScanId String?   @map("ingredient_scan_id") @db.Uuid
+  errorCode        String?   @map("error_code")
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scan            SkinScan?        @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  ingredientScan  IngredientScan?  @relation(fields: [ingredientScanId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("analysis_jobs")
+}
+
+model Routine {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  scanId         String?  @map("scan_id") @db.Uuid
+  recoveryId     String?  @map("recovery_id") @db.Uuid
+  rulesetVersion String   @map("ruleset_version")
+  summary        String
+  lifestyle      Json     @default("[]")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scan     SkinScan?           @relation(fields: [scanId], references: [id], onDelete: SetNull)
+  recovery ProcedureRecovery?  @relation(fields: [recoveryId], references: [id], onDelete: SetNull)
+  steps    RoutineStep[]
+  checkIns CheckIn[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("routines")
+}
+
+model RoutineStep {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  routineId    String  @map("routine_id") @db.Uuid
+  period       String
+  position     Int
+  kind         String
+  title        String
+  instructions String
+  why          String
+  productId    String? @map("product_id") @db.Uuid
+  caution      String?
+  routine      Routine @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@unique([routineId, period, position])
+  @@map("routine_steps")
+}
+
+model CheckIn {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  routineId         String?  @map("routine_id") @db.Uuid
+  day               DateTime @db.Date
+  completedStepIds  String[] @default([]) @map("completed_step_ids") @db.Uuid
+  note              String?
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  routine           Routine? @relation(fields: [routineId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, day])
+  @@map("check_ins")
+}
+
+model Ingredient {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inci             String   @unique
+  functions        Json     @default("[]")
+  irritancy        Int?     @db.SmallInt
+  comedogenicity   Int?     @db.SmallInt
+  pregnancyNote    String   @default("") @map("pregnancy_note")
+  avoidIf          Json     @default("[]") @map("avoid_if")
+  typicalRange     String?  @map("typical_range")
+  plainDescription String   @default("") @map("plain_description")
+  source           String   @default("")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  products         ProductIngredient[]
+
+  @@map("ingredients")
+}
+
+model IngredientRule {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ruleKey    String   @map("rule_key")
+  version    String
+  kind       String
+  definition Json
+  source     String
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([ruleKey, version])
+  @@map("ingredient_rules")
+}
+
+model Product {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug               String   @unique
+  name               String
+  brand              String
+  stepKind           String   @map("step_kind")
+  budget             String
+  fragranceFree      Boolean  @default(false) @map("fragrance_free")
+  minimalIngredient  Boolean  @default(false) @map("minimal_ingredient")
+  description        String   @default("")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+  ingredients        ProductIngredient[]
+  prices             PriceListing[]
+  routineSteps       RoutineStep[]
+
+  @@map("products")
+}
+
+model ProductIngredient {
+  productId    String @map("product_id") @db.Uuid
+  ingredientId String @map("ingredient_id") @db.Uuid
+  position     Int
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@id([productId, ingredientId])
+  @@map("product_ingredients")
+}
+
+model PriceListing {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId   String   @map("product_id") @db.Uuid
+  provider    String
+  priceCents  Int      @map("price_cents")
+  currency    String
+  url         String
+  submittedBy String?  @map("submitted_by") @db.Uuid
+  fetchedAt   DateTime @default(now()) @map("fetched_at") @db.Timestamptz
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  submitter   User?    @relation(fields: [submittedBy], references: [id], onDelete: SetNull)
+
+  @@index([productId, fetchedAt(sort: Desc)])
+  @@map("price_listings")
+}
+
+model IngredientScan {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  status         String
+  ocrText        String?  @map("ocr_text")
+  parsed         Json?
+  confirmedText  String?  @map("confirmed_text")
+  storeImage     Boolean  @default(false) @map("store_image")
+  imageRef       String?  @map("image_ref")
+  idempotencyKey String?  @map("idempotency_key")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs           AnalysisJob[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("ingredient_scans")
+}
+
+model ChatSession {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  title     String   @default("")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  role            String
+  content         String
+  sessionId       String?  @map("session_id") @db.Uuid
+  citations       Json?
+  retrievalScore  Float?   @map("retrieval_score")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session         ChatSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt], map: "chat_messages_user_created_idx")
+  @@index([sessionId, createdAt])
+  @@map("chat_messages")
+}
+
+model KnowledgeChunk {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  source             String
+  heading            String   @default("")
+  content            String
+  contentHash        String   @map("content_hash")
+  /// Present only when pgvector loaded. See docs/data-model.md.
+  embedding          Unsupported("vector(384)")?
+  embeddingFallback  Float[]  @default([]) @map("embedding_fallback")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([source, contentHash])
+  @@map("knowledge_chunks")
+}
+
+model FeedbackReport {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  topic     String
+  targetRef String?  @map("target_ref")
+  message   String
+  pageUrl   String?  @map("page_url")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("feedback_reports")
+}
+
+model ProcedureRecovery {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  procedureType  String   @map("procedure_type")
+  procedureOn    DateTime? @map("procedure_on") @db.Date
+  active         Boolean  @default(true)
+  clinicianNote  String   @default("") @map("clinician_note")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  routines       Routine[]
+
+  @@index([userId, active])
+  @@map("procedure_recoveries")
+}
+
+model Notification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model GuestSignupWindow {
+  ipHash       String   @map("ip_hash")
+  windowStart  DateTime @map("window_start") @db.Timestamptz
+  createdCount Int      @default(0) @map("created_count")
+
+  @@id([ipHash, windowStart])
+  @@map("guest_signup_windows")
+}
+
+model RateLimitBucket {
+  userId      String   @map("user_id") @db.Uuid
+  action      String
+  windowStart DateTime @map("window_start") @db.Timestamptz
+  count       Int      @default(0)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, action, windowStart])
+  @@map("rate_limit_buckets")
+}

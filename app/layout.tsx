@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
+import { SessionGate } from "@/components/SessionGate";
+import { getActorId, isDemoMode } from "@/lib/actor";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,15 +21,19 @@ export const metadata: Metadata = {
   icons: { icon: "/favicon.ico" },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const needsSession = !isDemoMode() && (await getActorId()) === null;
+
   return (
     <html lang="en" className={inter.variable}>
       <body className={`${inter.className} font-sans`}>
-        <AppShell>{children}</AppShell>
+        <SessionGate needsSession={needsSession}>
+          <AppShell>{children}</AppShell>
+        </SessionGate>
       </body>
     </html>
   );

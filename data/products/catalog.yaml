@@ -1,0 +1,219 @@
+# Example formulas for the open catalog. Not a shop, and not copied from a retailer label.
+# Contributors edit this file. Prices are never seeded here.
+version: 1
+products:
+  - id: 00000000-0000-4000-8000-000000000101
+    slug: example-gentle-gel
+    name: Example Gentle Gel
+    brand: Example Catalog
+    step_kind: cleanser
+    budget: low
+    fragrance_free: true
+    minimal_ingredient: true
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, GLYCERIN, PANTHENOL, PHENOXYETHANOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000102
+    slug: example-cream-wash
+    name: Example Cream Wash
+    brand: Example Catalog
+    step_kind: cleanser
+    budget: mid
+    fragrance_free: true
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, GLYCERIN, SQUALANE, CERAMIDE NP, PHENOXYETHANOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000103
+    slug: example-scented-gel
+    name: Example Scented Gel
+    brand: Example Catalog
+    step_kind: cleanser
+    budget: high
+    fragrance_free: false
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, GLYCERIN, PARFUM, LIMONENE, PHENOXYETHANOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000201
+    slug: example-niacinamide
+    name: Example Niacinamide
+    brand: Example Catalog
+    step_kind: treatment
+    budget: low
+    fragrance_free: true
+    minimal_ingredient: true
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, NIACINAMIDE, GLYCERIN, PANTHENOL, PHENOXYETHANOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000202
+    slug: example-azelaic
+    name: Example Azelaic
+    brand: Example Catalog
+    step_kind: treatment
+    budget: mid
+    fragrance_free: true
+    minimal_ingredient: true
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, AZELAIC ACID, GLYCERIN, PANTHENOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000203
+    slug: example-retinol
+    name: Example Retinol
+    brand: Example Catalog
+    step_kind: treatment
+    budget: high
+    fragrance_free: true
+    minimal_ingredient: true
+    description: "Example formula written for this catalog. Not a product for sale. Not a dose."
+    inci: [AQUA, RETINOL, SQUALANE, TOCOPHEROL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000204
+    slug: example-soothing
+    name: Example Soothing
+    brand: Example Catalog
+    step_kind: treatment
+    budget: low
+    fragrance_free: true
+    minimal_ingredient: true
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, CENTELLA ASIATICA EXTRACT, PANTHENOL, GLYCERIN]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000205
+    slug: example-salicylic
+    name: Example Salicylic
+    brand: Example Catalog
+    step_kind: treatment
+    budget: mid
+    fragrance_free: true
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale. Not a dose."
+    inci: [AQUA, SALICYLIC ACID, GLYCERIN, PHENOXYETHANOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000206
+    slug: example-benzoyl-peroxide
+    name: Example Benzoyl Peroxide
+    brand: Example Catalog
+    step_kind: treatment
+    budget: high
+    fragrance_free: true
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale. Not a dose."
+    inci: [AQUA, BENZOYL PEROXIDE, GLYCERIN]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000301
+    slug: example-gel-cream
+    name: Example Gel Cream
+    brand: Example Catalog
+    step_kind: moisturizer
+    budget: low
+    fragrance_free: true
+    minimal_ingredient: true
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, GLYCERIN, SODIUM HYALURONATE, PHENOXYETHANOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000302
+    slug: example-ceramide-cream
+    name: Example Ceramide Cream
+    brand: Example Catalog
+    step_kind: moisturizer
+    budget: mid
+    fragrance_free: true
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, CERAMIDE NP, SQUALANE, GLYCERIN, PANTHENOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000303
+    slug: example-rich-cream
+    name: Example Rich Cream
+    brand: Example Catalog
+    step_kind: moisturizer
+    budget: high
+    fragrance_free: false
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [AQUA, SQUALANE, TOCOPHEROL, LINALOOL, PHENOXYETHANOL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000401
+    slug: example-mineral-fluid
+    name: Example Mineral Fluid
+    brand: Example Catalog
+    step_kind: spf
+    budget: low
+    fragrance_free: true
+    minimal_ingredient: true
+    description: "Example formula written for this catalog. Not a product for sale. This entry does not rate sun protection."
+    inci: [AQUA, ZINC OXIDE, GLYCERIN]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000402
+    slug: example-mineral-cream
+    name: Example Mineral Cream
+    brand: Example Catalog
+    step_kind: spf
+    budget: mid
+    fragrance_free: true
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale. This entry does not rate sun protection."
+    inci: [AQUA, ZINC OXIDE, TITANIUM DIOXIDE, SQUALANE, GLYCERIN]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000403
+    slug: example-scented-spf
+    name: Example Scented SPF
+    brand: Example Catalog
+    step_kind: spf
+    budget: high
+    fragrance_free: false
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale. This entry does not rate sun protection."
+    inci: [AQUA, ZINC OXIDE, PARFUM, GLYCERIN]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000501
+    slug: example-squalane
+    name: Example Squalane
+    brand: Example Catalog
+    step_kind: extra
+    budget: low
+    fragrance_free: true
+    minimal_ingredient: true
+    description: "Example formula written for this catalog. Not a product for sale."
+    inci: [SQUALANE, TOCOPHEROL]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000502
+    slug: example-glycolic
+    name: Example Glycolic
+    brand: Example Catalog
+    step_kind: extra
+    budget: mid
+    fragrance_free: true
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale. Not a dose."
+    inci: [AQUA, GLYCOLIC ACID, GLYCERIN]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."
+
+  - id: 00000000-0000-4000-8000-000000000503
+    slug: example-lactic
+    name: Example Lactic
+    brand: Example Catalog
+    step_kind: extra
+    budget: high
+    fragrance_free: true
+    minimal_ingredient: false
+    description: "Example formula written for this catalog. Not a product for sale. Not a dose."
+    inci: [AQUA, LACTIC ACID, GLYCERIN]
+    source: "INCI list written for the RiRu example catalog. Not copied from a retailer label."

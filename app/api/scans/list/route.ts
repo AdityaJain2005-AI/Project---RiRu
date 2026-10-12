@@ -1,12 +1,17 @@
-import { DEMO_USER_ID, query } from "@/lib/db";
+import { requireActor } from "@/lib/actor";
+import { query } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const actor = await requireActor();
+    if (actor instanceof Response) return actor;
+    const userId = actor.userId;
+
     const res = await query<{
       id: string;
-      overall_score: number;
+      overall_score: number | null;
       summary: string;
       source: string;
       metrics: { id: string; label: string; score: number }[];
@@ -15,7 +20,7 @@ export async function GET() {
       `SELECT id, overall_score, summary, source, metrics, created_at
        FROM skin_scans WHERE user_id = $1
        ORDER BY created_at DESC LIMIT 40`,
-      [DEMO_USER_ID]
+      [userId]
     );
 
     return Response.json({

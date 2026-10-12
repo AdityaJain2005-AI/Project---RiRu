@@ -4,6 +4,7 @@ import * as React from "react";
 import { Check, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
+import { RecommendationPanel } from "./RecommendationPanel";
 import { Badge, Button, Card, PageHeader, cn } from "./ui";
 
 type Step = { step: number; name: string; time: string; why: string };
@@ -81,13 +82,17 @@ export function RoutinePage() {
       <PageHeader
         eyebrow="Daily care"
         title="Your routine"
-        description="Check off steps as you finish them. Progress saves to your profile."
+        description="Build a list from your latest succeeded scan, or check off the saved steps below. Checklist progress saves to your profile."
         action={
           busy ? (
             <Loader2 className="h-4 w-4 animate-spin text-zinc-400" />
           ) : undefined
         }
       />
+
+      <RecommendationPanel />
+
+      <h2 className="mb-3 text-sm font-semibold text-zinc-900">Check-off list</h2>
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="inline-flex rounded-xl border border-zinc-200 bg-white p-1 shadow-sm">

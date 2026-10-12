@@ -1,4 +1,5 @@
-import { DEMO_USER_ID, query } from "@/lib/db";
+import { requireActor } from "@/lib/actor";
+import { query } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +8,9 @@ export async function GET(
   ctx: { params: Promise<{ id: string }> }
 ) {
   try {
+    const actor = await requireActor();
+    if (actor instanceof Response) return actor;
+    const userId = actor.userId;
     const { id } = await ctx.params;
     const res = await query<{
       id: string;
@@ -20,7 +24,7 @@ export async function GET(
     }>(
       `SELECT id, overall_score, metrics, concerns, ingredients, summary, source, created_at
        FROM skin_scans WHERE id = $1 AND user_id = $2`,
-      [id, DEMO_USER_ID]
+      [id, userId]
     );
     const row = res.rows[0];
     if (!row) return Response.json({ error: "Scan not found" }, { status: 404 });
@@ -49,17 +53,20 @@ export async function DELETE(
   ctx: { params: Promise<{ id: string }> }
 ) {
   try {
+    const actor = await requireActor();
+    if (actor instanceof Response) return actor;
+    const userId = actor.userId;
     const { id } = await ctx.params;
     const res = await query(
       `DELETE FROM skin_scans WHERE id = $1 AND user_id = $2 RETURNING id`,
-      [id, DEMO_USER_ID]
+      [id, userId]
     );
     if (!res.rowCount) {
       return Response.json({ error: "Scan not found" }, { status: 404 });
     }
     await query(
       `INSERT INTO notifications (user_id, title, body) VALUES ($1, $2, $3)`,
-      [DEMO_USER_ID, "Scan deleted", "A skin scan was removed from your history."]
+      [userId, "Scan deleted", "A skin scan was removed from your history."]
     );
     return Response.json({ ok: true, id });
   } catch (err) {

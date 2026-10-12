@@ -1,8 +1,101 @@
 #!/usr/bin/env node
 // Idempotent database migration. Run via `zsc execOnce` in
 // initCommands — executes once per deploy version.
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import pg from "pg";
 const { Pool } = pg;
+
+function loadPhase1Sql() {
+  if (typeof __PHASE1_SQL__ === "string") return __PHASE1_SQL__;
+  const here = dirname(fileURLToPath(import.meta.url));
+  return readFileSync(join(here, "db", "phase1.sql"), "utf8");
+}
+
+function loadPhase2Sql() {
+  if (typeof __PHASE2_SQL__ === "string") return __PHASE2_SQL__;
+  const here = dirname(fileURLToPath(import.meta.url));
+  return readFileSync(join(here, "db", "phase2.sql"), "utf8");
+}
+
+function loadPhase3Sql() {
+  if (typeof __PHASE3_SQL__ === "string") return __PHASE3_SQL__;
+  const here = dirname(fileURLToPath(import.meta.url));
+  return readFileSync(join(here, "db", "phase3.sql"), "utf8");
+}
+
+async function tryExtension(client, name) {
+  try {
+    await client.query(`CREATE EXTENSION IF NOT EXISTS ${name}`);
+    return true;
+  } catch (err) {
+    console.warn(
+      `Extension ${name} is not available:`,
+      err instanceof Error ? err.message : String(err)
+    );
+    return false;
+  }
+}
+
+async function applyPhase1(client) {
+  const vectorAvailable = await tryExtension(client, "vector");
+  const trgmAvailable = await tryExtension(client, "pg_trgm");
+
+  await client.query(loadPhase1Sql());
+
+  await client.query(
+    `INSERT INTO schema_flags (id, vector_available)
+     VALUES (1, $1)
+     ON CONFLICT (id) DO UPDATE
+       SET vector_available = EXCLUDED.vector_available,
+           checked_at = NOW()`,
+    [vectorAvailable]
+  );
+
+  if (vectorAvailable) {
+    await client.query(
+      `ALTER TABLE knowledge_chunks ADD COLUMN IF NOT EXISTS embedding vector(384)`
+    );
+    try {
+      await client.query(
+        `CREATE INDEX IF NOT EXISTS knowledge_chunks_embedding_hnsw
+         ON knowledge_chunks USING hnsw (embedding vector_cosine_ops)`
+      );
+    } catch (err) {
+      console.warn(
+        "HNSW index was not created:",
+        err instanceof Error ? err.message : String(err)
+      );
+    }
+  }
+
+  if (trgmAvailable) {
+    await client.query(
+      `CREATE INDEX IF NOT EXISTS ingredients_inci_trgm_idx
+       ON ingredients USING gin (inci gin_trgm_ops)`
+    );
+  }
+
+  const days = Number(process.env.GUEST_RETENTION_DAYS ?? "30");
+  const retentionDays = Number.isFinite(days) && days > 0 ? Math.floor(days) : 30;
+  const purged = await client.query(
+    `WITH doomed AS (
+       DELETE FROM users
+       WHERE auth_provider = 'guest'
+         AND deleted_at IS NULL
+         AND updated_at < NOW() - ($1::int * INTERVAL '1 day')
+       RETURNING id
+     )
+     INSERT INTO deletion_receipts (request_id)
+     SELECT gen_random_uuid()::text FROM doomed
+     RETURNING id`,
+    [retentionDays]
+  );
+  if (purged.rowCount) {
+    console.log(`Purged ${purged.rowCount} idle guest account(s).`);
+  }
+}
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -174,7 +267,10 @@ async function migrate() {
       );
     }
 
-    console.log("Migration complete (Facelab schema).");
+    await applyPhase1(client);
+    await client.query(loadPhase2Sql());
+    await client.query(loadPhase3Sql());
+    console.log("Migration complete (Facelab schema + RiRu phase 1, phase 2, and phase 3).");
   } finally {
     client.release();
     await pool.end();

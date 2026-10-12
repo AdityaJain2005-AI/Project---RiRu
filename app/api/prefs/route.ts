@@ -1,9 +1,14 @@
-import { DEMO_USER_ID, query } from "@/lib/db";
+import { requireActor } from "@/lib/actor";
+import { query } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function PATCH(req: Request) {
   try {
+    const actor = await requireActor();
+    if (actor instanceof Response) return actor;
+    const userId = actor.userId;
+
     const body = (await req.json()) as {
       routinePhase?: "am" | "pm";
       skinType?: string;
@@ -17,7 +22,7 @@ export async function PATCH(req: Request) {
     if (body.routinePhase === "am" || body.routinePhase === "pm") {
       await query(
         `UPDATE user_prefs SET routine_phase = $2, updated_at = NOW() WHERE user_id = $1`,
-        [DEMO_USER_ID, body.routinePhase]
+        [userId, body.routinePhase]
       );
     }
 
@@ -31,7 +36,7 @@ export async function PATCH(req: Request) {
            END,
            updated_at = NOW()
          WHERE id = $1`,
-        [DEMO_USER_ID, body.name ?? null, body.skinType ?? null]
+        [userId, body.name ?? null, body.skinType ?? null]
       );
     }
 
@@ -39,7 +44,7 @@ export async function PATCH(req: Request) {
       const { name, favorited } = body.favoriteIngredient;
       const prefs = await query<{ favorite_ingredients: string[] }>(
         `SELECT favorite_ingredients FROM user_prefs WHERE user_id = $1`,
-        [DEMO_USER_ID]
+        [userId]
       );
       let list = Array.isArray(prefs.rows[0]?.favorite_ingredients)
         ? [...prefs.rows[0].favorite_ingredients]
@@ -48,24 +53,24 @@ export async function PATCH(req: Request) {
       if (!favorited) list = list.filter((n) => n !== name);
       await query(
         `UPDATE user_prefs SET favorite_ingredients = $2::jsonb, updated_at = NOW() WHERE user_id = $1`,
-        [DEMO_USER_ID, JSON.stringify(list)]
+        [userId, JSON.stringify(list)]
       );
     }
 
     if (body.markNotificationsRead) {
       await query(`UPDATE notifications SET read = TRUE WHERE user_id = $1`, [
-        DEMO_USER_ID,
+        userId,
       ]);
     }
 
     if (body.clearNotifications) {
-      await query(`DELETE FROM notifications WHERE user_id = $1`, [DEMO_USER_ID]);
+      await query(`DELETE FROM notifications WHERE user_id = $1`, [userId]);
     }
 
     if (body.routineDone) {
       const prefs = await query<{ settings: Record<string, unknown> }>(
         `SELECT settings FROM user_prefs WHERE user_id = $1`,
-        [DEMO_USER_ID]
+        [userId]
       );
       const settings = {
         ...(prefs.rows[0]?.settings ?? {}),
@@ -76,7 +81,7 @@ export async function PATCH(req: Request) {
       };
       await query(
         `UPDATE user_prefs SET settings = $2::jsonb, updated_at = NOW() WHERE user_id = $1`,
-        [DEMO_USER_ID, JSON.stringify(settings)]
+        [userId, JSON.stringify(settings)]
       );
     }
 

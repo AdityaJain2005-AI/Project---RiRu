@@ -1,10 +1,19 @@
-import { DEMO_USER_ID, query } from "@/lib/db";
+import { requireActor } from "@/lib/actor";
+import { query } from "@/lib/db";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import { generateScan } from "@/lib/scan-engine";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
+    const actor = await requireActor();
+    if (actor instanceof Response) return actor;
+    const userId = actor.userId;
+
+    const limited = await consumeRateLimit(userId, "face_scan", 8, 86_400);
+    if (!limited.ok) return rateLimitResponse(limited, "Too many scans today.");
+
     const body = (await req.json().catch(() => ({}))) as {
       source?: "camera" | "upload";
       fileName?: string;
@@ -16,7 +25,7 @@ export async function POST(req: Request) {
 
     const prevRes = await query<{ metrics: { id: string; score: number }[] }>(
       `SELECT metrics FROM skin_scans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
-      [DEMO_USER_ID]
+      [userId]
     );
     const prevMap: Record<string, number> = {};
     for (const m of prevRes.rows[0]?.metrics ?? []) {
@@ -31,7 +40,7 @@ export async function POST(req: Request) {
        VALUES ($1, $2, $3::jsonb, $4::jsonb, $5::jsonb, $6, $7)
        RETURNING id, created_at`,
       [
-        DEMO_USER_ID,
+        userId,
         payload.overallScore,
         JSON.stringify(payload.metrics),
         JSON.stringify(payload.concerns),
@@ -43,7 +52,7 @@ export async function POST(req: Request) {
 
     await query(
       `UPDATE users SET streak_days = streak_days + 1, updated_at = NOW() WHERE id = $1`,
-      [DEMO_USER_ID]
+      [userId]
     );
 
     const title =
@@ -56,7 +65,7 @@ export async function POST(req: Request) {
     await query(
       `INSERT INTO notifications (user_id, title, body) VALUES ($1, $2, $3)`,
       [
-        DEMO_USER_ID,
+        userId,
         title,
         `Skin score ${payload.overallScore}. ${payload.summary}${
           body.imageMeta?.width
@@ -69,7 +78,7 @@ export async function POST(req: Request) {
     await query(
       `INSERT INTO chat_messages (user_id, role, content) VALUES ($1, 'ai', $2)`,
       [
-        DEMO_USER_ID,
+        userId,
         `Scan saved (${source}). Overall ${payload.overallScore}. ${payload.summary}`,
       ]
     );

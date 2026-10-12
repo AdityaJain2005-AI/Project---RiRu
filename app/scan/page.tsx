@@ -4,16 +4,16 @@ import { ScanFlow } from "@/components/ScanFlow";
 
 export const metadata: Metadata = {
   title: "Face scan",
-  description: "Guided AI skin scan — camera or photo.",
+  description: "Camera or photo. A baseline visual estimate, not a diagnosis.",
 };
 
 export default function ScanPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Diagnostic"
+        eyebrow="Face scan"
         title="Face scan"
-        description="One quiet minute. We map landmarks, score biomarkers, and save everything to your lab history."
+        description="A photo is checked for a clear face, then a baseline visual estimate is saved. This is not a measurement and not a diagnosis."
       />
       <ScanFlow />
     </div>

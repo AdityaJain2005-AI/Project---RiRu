@@ -44,7 +44,17 @@ I planned the system boundaries, data model, and user flows first. Then I used G
 
 ## Current Status
 
-The core UI, database schema, health checks, and basic dashboard are live on Zerops. Computer vision, OCR, routine auditing, and the full AI assistant are still under active development.
+The core UI, database schema, health checks, and dashboard are live on Zerops. The scan screen sends the photo to a baseline visual estimate (`baseline_cv_v1`). It is not a measurement and not a diagnosis. Older rows may still be the heuristic in `lib/scan-engine.ts`. `POST /api/scans` still writes that heuristic.
+
+A typed ingredient list can be checked with the versioned rule pack, and that path does not need the ML service. A label photo is read only when the ML service is up. The photo is not kept unless storage is configured and the user opts in. OCR accuracy is not measured.
+
+A routine can be built from the latest succeeded face scan and the profile. Example products are formulas in `data/products`, not shop listings. Similarity is ingredient-name overlap (`jaccard_v1`), not a measured match. A price is stored only when you paste it, and only on your own rows. The server does not open the link. A sample-score scan does not personalize the list. The check-off list on `/routine` is unchanged. Saving a routine or a price needs the phase 1 tables, which have not been applied on this machine. Grounded chat is not in this build.
+
+Phase 1 is in [`docs/phase-1.md`](docs/phase-1.md). Phase 2 (quality gate and baseline face estimate) is in [`docs/phase-2.md`](docs/phase-2.md). Phase 3 (ingredient catalog, OCR, and the conflict check) is in [`docs/phase-3.md`](docs/phase-3.md). Phase 4 (recommendations and pasted prices) is in [`docs/phase-4.md`](docs/phase-4.md).
+
+## Design
+
+Phase 0 (architecture, data model, API contract, risks) is in [`docs/phase-0.md`](docs/phase-0.md). Later phases implement that contract one slice at a time.
 
 ---
 

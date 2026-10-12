@@ -9,42 +9,54 @@ import {
   Target,
 } from "lucide-react";
 import { Badge, Button, Card, ScoreRing } from "@/components/ui";
-import { DEMO_USER_ID, query } from "@/lib/db";
+import { getActorId } from "@/lib/actor";
+import { query } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 async function getHomeStats() {
+  const empty = {
+    score: null as number | null,
+    summary: null as string | null,
+    analysisKind: null as string | null,
+    scans: 0,
+    name: "there",
+    streak: 0,
+    skinType: "unknown",
+  };
   try {
-    const scan = await query<{ overall_score: number; created_at: string; summary: string }>(
-      `SELECT overall_score, created_at, summary FROM skin_scans
-       WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
-      [DEMO_USER_ID]
+    const userId = await getActorId();
+    if (!userId) return empty;
+
+    const scan = await query<{
+      overall_score: number | null;
+      summary: string;
+      analysis_kind: string;
+    }>(
+      `SELECT overall_score, summary, analysis_kind FROM skin_scans
+       WHERE user_id = $1 AND status = 'succeeded'
+       ORDER BY created_at DESC LIMIT 1`,
+      [userId]
     );
     const count = await query<{ c: number }>(
       `SELECT COUNT(*)::int AS c FROM skin_scans WHERE user_id = $1`,
-      [DEMO_USER_ID]
+      [userId]
     );
     const user = await query<{ name: string; streak_days: number; skin_type: string }>(
       `SELECT name, streak_days, skin_type FROM users WHERE id = $1`,
-      [DEMO_USER_ID]
+      [userId]
     );
     return {
       score: scan.rows[0]?.overall_score ?? null,
       summary: scan.rows[0]?.summary ?? null,
+      analysisKind: scan.rows[0]?.analysis_kind ?? null,
       scans: count.rows[0]?.c ?? 0,
       name: user.rows[0]?.name ?? "there",
       streak: user.rows[0]?.streak_days ?? 0,
       skinType: user.rows[0]?.skin_type ?? "Combination",
     };
   } catch {
-    return {
-      score: null,
-      summary: null,
-      scans: 0,
-      name: "there",
-      streak: 0,
-      skinType: "Combination",
-    };
+    return empty;
   }
 }
 
@@ -69,6 +81,13 @@ export default async function HomePage() {
             Scan in under a minute, see biomarker scores, follow a short AM/PM
             routine, and ask the cosmetologist anything. Progress is saved to
             your lab history.
+          </p>
+          <p className="max-w-lg text-xs leading-relaxed text-zinc-400">
+            {stats.analysisKind === "baseline_cv_v1"
+              ? "The latest result is a baseline visual estimate from the photo. It is not a measurement and not a diagnosis. Informational only, not a medical diagnosis."
+              : stats.analysisKind === "heuristic_v0"
+                ? "Scores on older scans are sample estimates, not a measurement of your skin. Informational only, not a medical diagnosis."
+                : "No completed scan yet. A new scan checks the photo, then saves a baseline visual estimate. Informational only, not a medical diagnosis."}
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/scan">
@@ -120,9 +139,18 @@ export default async function HomePage() {
                 {stats.summary ??
                   "Run a scan to unlock scores, concerns, and a tailored routine."}
               </p>
-              <p className="text-xs text-zinc-400">{stats.skinType} skin type</p>
+              <p className="text-xs text-zinc-400">
+                {stats.skinType === "unknown" ? "Skin type not set" : `${stats.skinType} skin`}
+              </p>
             </div>
-            <ScoreRing score={stats.score ?? 0} label={stats.score != null ? "Live" : "New"} />
+            {typeof stats.score === "number" ? (
+              <ScoreRing
+                score={stats.score}
+                label={stats.analysisKind === "heuristic_v0" ? "Sample" : "Estimate"}
+              />
+            ) : (
+              <p className="text-4xl font-semibold text-zinc-300">—</p>
+            )}
           </div>
           <div className="relative mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {[
@@ -144,16 +172,21 @@ export default async function HomePage() {
         </Card>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
           {
             t: "Guided scan",
-            d: "Camera or photo → biomarker map stored in your history.",
+            d: "Camera or photo. A bad frame is rejected. The result is a visual estimate.",
             href: "/scan",
           },
           {
+            t: "Ingredient label",
+            d: "Type a list or photograph a label. You confirm the text. The check is a rule, not a diagnosis.",
+            href: "/ingredients",
+          },
+          {
             t: "Daily routine",
-            d: "Short AM/PM steps you can check off as you go.",
+            d: "Short AM/PM steps you can check off as you go, or build a list from your latest scan.",
             href: "/routine",
           },
           {

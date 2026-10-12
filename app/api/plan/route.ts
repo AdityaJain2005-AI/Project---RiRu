@@ -1,5 +1,7 @@
+import { requireActor } from "@/lib/actor";
 import { cosmetologistReply } from "@/lib/chat-engine";
-import { DEMO_USER_ID, query } from "@/lib/db";
+import { query } from "@/lib/db";
+import { consumeRateLimit, rateLimitResponse } from "@/lib/rate-limit";
 import type { ScanPayload } from "@/lib/scan-engine";
 import { ROUTINE } from "@/lib/scan-engine";
 
@@ -8,6 +10,13 @@ export const dynamic = "force-dynamic";
 /** Build a treatment plan for a concern and persist as chat + notification. */
 export async function POST(req: Request) {
   try {
+    const actor = await requireActor();
+    if (actor instanceof Response) return actor;
+    const userId = actor.userId;
+
+    const limited = await consumeRateLimit(userId, "chat", 30, 3_600);
+    if (!limited.ok) return rateLimitResponse(limited, "Too many messages this hour.");
+
     const body = (await req.json()) as {
       concernId?: string;
       concernTitle?: string;
@@ -15,7 +24,7 @@ export async function POST(req: Request) {
     };
 
     const scanRes = await query<{
-      overall_score: number;
+      overall_score: number | null;
       metrics: ScanPayload["metrics"];
       concerns: ScanPayload["concerns"];
       ingredients: ScanPayload["ingredients"];
@@ -23,8 +32,9 @@ export async function POST(req: Request) {
       source: string;
     }>(
       `SELECT overall_score, metrics, concerns, ingredients, summary, source
-       FROM skin_scans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
-      [DEMO_USER_ID]
+       FROM skin_scans WHERE user_id = $1 AND status = 'succeeded'
+       ORDER BY created_at DESC LIMIT 1`,
+      [userId]
     );
     const row = scanRes.rows[0];
     const concerns = (row?.concerns ?? []) as ScanPayload["concerns"];
@@ -45,7 +55,7 @@ export async function POST(req: Request) {
       top.length
         ? `Priority actives: ${top.join(", ")}`
         : "Priority: barrier repair + daily SPF",
-      "Re-scan in 7 days to measure change.",
+      "Re-scan in 7 days to compare the next estimate.",
     ];
 
     const planText = steps.join("\n");
@@ -69,12 +79,12 @@ export async function POST(req: Request) {
 
     await query(
       `INSERT INTO chat_messages (user_id, role, content) VALUES ($1, 'user', $2), ($1, 'ai', $3)`,
-      [DEMO_USER_ID, userLine, aiText]
+      [userId, userLine, aiText]
     );
     await query(
       `INSERT INTO notifications (user_id, title, body) VALUES ($1, $2, $3)`,
       [
-        DEMO_USER_ID,
+        userId,
         `Plan: ${title}`,
         `Treatment plan saved to chat. Focus on ${zone} this week.`,
       ]

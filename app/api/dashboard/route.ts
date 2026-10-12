@@ -1,10 +1,15 @@
-import { DEMO_USER_ID, query } from "@/lib/db";
+import { requireActor } from "@/lib/actor";
+import { query } from "@/lib/db";
 import { ROUTINE } from "@/lib/scan-engine";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
+    const actor = await requireActor();
+    if (actor instanceof Response) return actor;
+    const userId = actor.userId;
+
     const scanId = new URL(req.url).searchParams.get("scanId");
 
     const userRes = await query<{
@@ -14,7 +19,7 @@ export async function GET(req: Request) {
       skin_type: string;
       streak_days: number;
     }>(`SELECT id, name, initials, skin_type, streak_days FROM users WHERE id = $1`, [
-      DEMO_USER_ID,
+      userId,
     ]);
     const user = userRes.rows[0];
     if (!user) {
@@ -24,7 +29,7 @@ export async function GET(req: Request) {
     const scanRes = scanId
       ? await query<{
           id: string;
-          overall_score: number;
+          overall_score: number | null;
           metrics: unknown;
           concerns: unknown;
           ingredients: unknown;
@@ -34,11 +39,11 @@ export async function GET(req: Request) {
         }>(
           `SELECT id, overall_score, metrics, concerns, ingredients, summary, source, created_at
            FROM skin_scans WHERE user_id = $1 AND id = $2`,
-          [DEMO_USER_ID, scanId]
+          [userId, scanId]
         )
       : await query<{
           id: string;
-          overall_score: number;
+          overall_score: number | null;
           metrics: unknown;
           concerns: unknown;
           ingredients: unknown;
@@ -47,21 +52,23 @@ export async function GET(req: Request) {
           created_at: string;
         }>(
           `SELECT id, overall_score, metrics, concerns, ingredients, summary, source, created_at
-           FROM skin_scans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
-          [DEMO_USER_ID]
+           FROM skin_scans WHERE user_id = $1 AND status = 'succeeded'
+           ORDER BY created_at DESC LIMIT 1`,
+          [userId]
         );
     const scan = scanRes.rows[0] ?? null;
 
-    const historyRes = await query<{ overall_score: number; created_at: string }>(
+    const historyRes = await query<{ overall_score: number | null; created_at: string }>(
       `SELECT overall_score, created_at FROM skin_scans
-       WHERE user_id = $1 ORDER BY created_at ASC LIMIT 14`,
-      [DEMO_USER_ID]
+       WHERE user_id = $1 AND status = 'succeeded' AND overall_score IS NOT NULL
+       ORDER BY created_at ASC LIMIT 14`,
+      [userId]
     );
 
     const chatRes = await query<{ id: string; role: string; content: string; created_at: string }>(
       `SELECT id, role, content, created_at FROM chat_messages
        WHERE user_id = $1 ORDER BY created_at ASC LIMIT 50`,
-      [DEMO_USER_ID]
+      [userId]
     );
 
     const prefsRes = await query<{
@@ -70,7 +77,7 @@ export async function GET(req: Request) {
       settings: Record<string, unknown>;
     }>(
       `SELECT routine_phase, favorite_ingredients, settings FROM user_prefs WHERE user_id = $1`,
-      [DEMO_USER_ID]
+      [userId]
     );
     const prefs = prefsRes.rows[0] ?? {
       routine_phase: "am",
@@ -87,7 +94,7 @@ export async function GET(req: Request) {
     }>(
       `SELECT id, title, body, read, created_at FROM notifications
        WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20`,
-      [DEMO_USER_ID]
+      [userId]
     );
 
     const favorites = Array.isArray(prefs.favorite_ingredients)
