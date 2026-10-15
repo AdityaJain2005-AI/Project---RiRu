@@ -547,7 +547,7 @@ export default function FacelabSkinDiagnosticDashboard() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-semibold tracking-tight">Facelab</h1>
+                  <h1 className="text-lg font-semibold tracking-tight">RiRu</h1>
                   <Badge tone="emerald">
                     <Sparkles className="h-3 w-3" />
                     Live · Postgres

@@ -1,0 +1,67 @@
+# Original RiRu notes. Not copied from a textbook, paper, or product label.
+# Each chunk is one retrieval unit. Contributors edit this file.
+version: v1
+chunks:
+  - id: sunscreen-amount
+    title: How much sunscreen to use
+    source: "RiRu contributors, 2026-10-13. General sunscreen practice written for this app. Not a product label."
+    topic: sunscreen
+    last_reviewed: 2026-10-13
+    body: |
+      For the face and neck, a common practical amount is about two finger-lengths of sunscreen, or roughly a half teaspoon for the face and neck together. Apply it as the last morning step, on skin that has dried. This note does not rate sun protection and does not name a brand.
+
+  - id: sunscreen-reapply
+    title: Reapplying sunscreen
+    source: "RiRu contributors, 2026-10-13. General sunscreen practice written for this app."
+    topic: sunscreen
+    last_reviewed: 2026-10-13
+    body: |
+      Sunscreen is usually reapplied about every two hours when you are outdoors, and again after swimming or heavy sweating. Sitting indoors away from windows is a different situation. This app cannot tell you that a particular product lasted a certain number of hours.
+
+  - id: patch-test
+    title: How to patch test
+    source: "RiRu contributors, 2026-10-13. General patch-test practice written for this app."
+    topic: patch-testing
+    last_reviewed: 2026-10-13
+    body: |
+      A patch test means a small amount of a new product on the inner arm or behind the ear, once a day for several days, before using it on the whole face. Stop if the skin burns, swells, or keeps itching. A quiet patch test is not proof the product is safe for you.
+
+  - id: routine-order
+    title: A short morning and night order
+    source: "RiRu contributors, 2026-10-13. Routine basics written for this app."
+    topic: routine
+    last_reviewed: 2026-10-13
+    body: |
+      A short morning order is cleanse, then a leave-on such as moisturizer, then sunscreen last. A short night order is cleanse, then moisturizer. Add one new product at a time. This is a sequence, not a prescription and not a dose.
+
+  - id: niacinamide-note
+    title: Niacinamide in a routine
+    source: "RiRu contributors, 2026-10-13. Ingredient note written for this catalog. Not a clinical monograph."
+    topic: ingredients
+    last_reviewed: 2026-10-13
+    body: |
+      Niacinamide is a common leave-on ingredient used for the look of uneven tone and for barrier comfort. Introduce it on its own before combining it with strong acids. This note does not set a percentage you should use.
+
+  - id: irritation-basics
+    title: When a product stings
+    source: "RiRu contributors, 2026-10-13. Irritation basics written for this app."
+    topic: ingredients
+    last_reviewed: 2026-10-13
+    body: |
+      Stinging, peeling that keeps spreading, or swelling is a reason to stop that product and ask a pharmacist or a dermatologist. Mixing strong leave-ons can raise irritation. The ingredient rule pack, not this paragraph, decides conflicts.
+
+  - id: aftercare-basics
+    title: General care after a procedure
+    source: "RiRu contributors, 2026-10-13. General aftercare principles written for this app. Not a clinic protocol."
+    topic: aftercare
+    last_reviewed: 2026-10-13
+    body: |
+      After a procedure, follow the written instructions from the clinician who treated you. Keep the area clean, protect it from the sun, and pause strong acids and scrubs until that clinician says otherwise. This app does not replace those instructions.
+
+  - id: mole-warning
+    title: A changing mole
+    source: "RiRu contributors, 2026-10-13. Safety note written for this app."
+    topic: safety
+    last_reviewed: 2026-10-13
+    body: |
+      A changing mole, a sore that does not heal, or a mark you worry could be skin cancer needs an in-person dermatologist. This app cannot assess skin cancer from a chat message or a photo.

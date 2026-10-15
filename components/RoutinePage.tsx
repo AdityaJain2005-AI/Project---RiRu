@@ -5,6 +5,7 @@ import { Check, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 import { RecommendationPanel } from "./RecommendationPanel";
+import { RecoveryCard } from "./RecoveryCard";
 import { Badge, Button, Card, PageHeader, cn } from "./ui";
 
 type Step = { step: number; name: string; time: string; why: string };
@@ -91,6 +92,7 @@ export function RoutinePage() {
       />
 
       <RecommendationPanel />
+      <RecoveryCard />
 
       <h2 className="mb-3 text-sm font-semibold text-zinc-900">Check-off list</h2>
 

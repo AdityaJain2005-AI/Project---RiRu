@@ -1,8 +1,10 @@
 """Label OCR. Photos are read from memory and are not written to disk.
 
 Deskew is not implemented. This module does not import OpenCV.
-Tesseract `eng` is the default. Any other OCR_PROVIDER, including paddle, is refused.
-Accuracy is not measured.
+A dark frame is inverted after autocontrast so light text on a dark label
+is not sent to Tesseract as a near-black page. Tesseract `eng` is the default.
+Any other OCR_PROVIDER, including paddle, is refused.
+Accuracy on photographed labels is not measured.
 """
 
 from __future__ import annotations
@@ -27,8 +29,14 @@ class OcrProviderUnsupported(Exception):
 
 
 def preprocess(image: Image.Image) -> Image.Image:
-    """Grayscale, autocontrast, then scale. No deskew."""
+    """Grayscale, autocontrast, invert a dark page, then scale. No deskew."""
     gray = ImageOps.autocontrast(ImageOps.grayscale(image))
+    histogram = gray.histogram()
+    total = sum(histogram)
+    if total:
+        mean = sum(index * count for index, count in enumerate(histogram)) / total
+        if mean < 90:
+            gray = ImageOps.invert(gray)
     width, height = gray.size
     short = min(width, height)
     long_edge = max(width, height)

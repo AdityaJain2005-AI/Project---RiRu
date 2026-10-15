@@ -10,6 +10,7 @@ import {
   type IngredientProfile,
   type RulePack,
   evaluateVerdict,
+  explainMatched,
   matchTokens,
   parseCatalog,
   parseRulePack,
@@ -150,6 +151,13 @@ test("unparsed blocks good_fit and fuzzy alone does not", () => {
     assert.deepEqual(unknown.unparsed, ["Mystery Wax"]);
     assert.ok(unknown.reasons.some((reason) => reason.ruleKey === "unparsed_names"));
   }
+
+  const notes = explainMatched(matchTokens("Glycerol, Glycolc Acid, Mystery Wax", catalog), catalog);
+  assert.deepEqual(
+    notes.map((note) => note.inci),
+    ["GLYCERIN", "GLYCOLIC ACID"]
+  );
+  assert.match(notes[0]?.plainDescription ?? "", /humectant/i);
 
   const fuzzy = evaluateVerdict(matchTokens("Glycolc Acid", catalog), pack, catalog);
   assert.equal(fuzzy.ok, true);

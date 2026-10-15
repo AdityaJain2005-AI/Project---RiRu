@@ -1097,6 +1097,21 @@ components:
           type: array
           items:
             type: string
+        ingredients:
+          type: array
+          description: Catalog notes for matched names. Each note says the role and a short reason from the catalog. Unparsed names are omitted.
+          items:
+            type: object
+            required: [inci, functions, plainDescription]
+            properties:
+              inci:
+                type: string
+              functions:
+                type: array
+                items:
+                  type: string
+              plainDescription:
+                type: string
         rulesetVersion:
           type: string
         disclaimer:

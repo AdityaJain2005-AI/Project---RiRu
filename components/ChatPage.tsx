@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { ArrowRight, Loader2, Sparkles } from "lucide-react";
 import { Badge, Button, Card, cn } from "./ui";
 
-type Msg = { id?: string; role: "user" | "ai"; text: string };
+type Citation = { kind: string; id: string; title?: string };
+type Msg = { id?: string; role: "user" | "ai"; text: string; citations?: Citation[] };
 
 export function ChatPage() {
   const searchParams = useSearchParams();
@@ -13,6 +14,10 @@ export function ChatPage() {
   const [draft, setDraft] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [includeProfile, setIncludeProfile] = React.useState(false);
+  const [sessionId, setSessionId] = React.useState<string | null>(null);
+  const [followUps, setFollowUps] = React.useState<string[]>([]);
+  const [notice, setNotice] = React.useState("");
   const bottomRef = React.useRef<HTMLDivElement>(null);
   const seeded = React.useRef(false);
 
@@ -36,34 +41,71 @@ export function ChatPage() {
     const text = (textOverride ?? draft).trim();
     if (!text || busy) return;
     setDraft("");
-    setMessages((m) => [...m, { role: "user", text }]);
+    setNotice("");
+    setMessages((current) => [...current, { role: "user", text }]);
     setBusy(true);
+    let ai = "";
+    let citations: Citation[] = [];
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+        body: JSON.stringify({ message: text, sessionId, includeProfile, stream: true }),
       });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed");
-      setMessages((m) => [
-        ...m,
-        { role: "ai", text: json.message.text, id: json.message.id },
-      ]);
-    } catch (e) {
-      setMessages((m) => [
-        ...m,
-        {
-          role: "ai",
-          text: e instanceof Error ? e.message : "Could not reply.",
-        },
-      ]);
+      if (!res.ok || !res.body) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(typeof json.error === "string" ? json.error : "Chat failed");
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      setMessages((current) => [...current, { role: "ai", text: "" }]);
+      while (true) {
+        const read = await reader.read();
+        if (read.done) break;
+        buffer += decoder.decode(read.value, { stream: true });
+        const blocks = buffer.split("\n\n");
+        buffer = blocks.pop() ?? "";
+        for (const block of blocks) {
+          const event = block.match(/^event:\s*(.+)$/m)?.[1] ?? "message";
+          const dataLine = block.match(/^data:\s*(.+)$/m)?.[1] ?? "";
+          if (!dataLine) continue;
+          const data = JSON.parse(dataLine) as {
+            text?: string;
+            citations?: Citation[];
+            followUps?: string[];
+            sessionId?: string;
+          };
+          if (event === "token" && data.text) {
+            ai += data.text;
+            const next = ai;
+            setMessages((current) => {
+              const copy = current.slice();
+              const last = copy[copy.length - 1];
+              if (last?.role === "ai") copy[copy.length - 1] = { ...last, text: next };
+              return copy;
+            });
+          }
+          if (event === "citation" && data.citations) citations = data.citations;
+          if (event === "followups" && data.followUps) setFollowUps(data.followUps);
+          if (event === "done" && data.sessionId) setSessionId(data.sessionId);
+        }
+      }
+      setMessages((current) => {
+        const copy = current.slice();
+        const last = copy[copy.length - 1];
+        if (last?.role === "ai") copy[copy.length - 1] = { ...last, text: ai, citations };
+        return copy;
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not reply.";
+      setNotice(message);
+      setMessages((current) => [...current, { role: "ai", text: message }]);
     } finally {
       setBusy(false);
     }
-  }, [busy, draft]);
+  }, [busy, draft, includeProfile, sessionId]);
 
-  // Deep-link: /chat?q=... auto-sends once loaded
   React.useEffect(() => {
     if (loading || seeded.current) return;
     const q = searchParams.get("q");
@@ -73,6 +115,10 @@ export function ChatPage() {
     }
   }, [loading, searchParams, send]);
 
+  const starters = followUps.length > 0
+    ? followUps
+    : ["How much sunscreen should I apply on my face?", "How do I patch test a new product?", "What order should a simple morning routine follow?"];
+
   return (
     <Card elevated className="flex min-h-[70vh] flex-col overflow-hidden">
       <div className="flex items-center gap-3 border-b border-zinc-100 bg-gradient-to-r from-emerald-50/80 to-white px-4 py-3">
@@ -80,14 +126,10 @@ export function ChatPage() {
           <Sparkles className="h-4 w-4" />
         </span>
         <div>
-          <p className="text-sm font-semibold">AI Cosmetologist</p>
-          <p className="text-[11px] text-zinc-500">
-            Knows your latest scan · replies saved to your lab
-          </p>
+          <p className="text-sm font-semibold">RiRu</p>
+          <p className="text-[11px] text-zinc-500">Informational only, not a medical diagnosis.</p>
         </div>
-        <Badge tone="emerald" className="ml-auto">
-          Online
-        </Badge>
+        <Badge tone="emerald" className="ml-auto">Notes</Badge>
       </div>
 
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
@@ -98,7 +140,7 @@ export function ChatPage() {
         )}
         {!loading && messages.length === 0 && (
           <p className="rounded-2xl bg-zinc-50 px-4 py-3 text-sm text-zinc-500">
-            Ask about hydration, SPF, cleanser swaps, or tonight’s routine.
+            Ask about sunscreen, patch testing, or a short routine. Answers cite the notes they used. If the notes do not cover it, RiRu says it is not sure.
           </p>
         )}
         {messages.map((msg, i) => (
@@ -112,6 +154,11 @@ export function ChatPage() {
             )}
           >
             {msg.text}
+            {msg.role === "ai" && msg.citations && msg.citations.length > 0 ? (
+              <p className="mt-2 text-[11px] text-zinc-500">
+                Sources: {msg.citations.map((item) => item.id).join(", ")}
+              </p>
+            ) : null}
           </div>
         ))}
         {busy && (
@@ -123,13 +170,20 @@ export function ChatPage() {
       </div>
 
       <div className="border-t border-zinc-100 p-3">
+        {notice ? <p className="mb-2 text-xs text-rose-700">{notice}</p> : null}
+        <label className="mb-2 flex items-start gap-2 text-xs text-zinc-600">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={includeProfile}
+            onChange={(event) => setIncludeProfile(event.target.checked)}
+          />
+          <span>
+            Include my latest scan summary and profile flags. Off by default. A clinician note is never sent.
+          </span>
+        </label>
         <div className="mb-2 flex flex-wrap gap-1.5">
-          {[
-            "Why is hydration low?",
-            "Tweak my PM for 5 minutes",
-            "Travel SPF kit",
-            "Explain my latest scan",
-          ].map((q) => (
+          {starters.map((q) => (
             <button
               key={q}
               type="button"
@@ -145,16 +199,11 @@ export function ChatPage() {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && void send()}
-            placeholder="Ask anything about your skin plan…"
+            maxLength={2000}
+            placeholder="Ask from the notes…"
             className="h-11 flex-1 rounded-xl border border-zinc-200 bg-zinc-50 px-3 text-sm outline-none ring-emerald-500/30 placeholder:text-zinc-400 focus:bg-white focus:ring-2"
           />
-          <Button
-            size="icon"
-            className="h-11 w-11"
-            onClick={() => void send()}
-            disabled={busy}
-            type="button"
-          >
+          <Button size="icon" className="h-11 w-11" onClick={() => void send()} disabled={busy} type="button">
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

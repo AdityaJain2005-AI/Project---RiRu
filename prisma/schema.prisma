@@ -78,6 +78,7 @@ model Profile {
   fragranceSensitive     Boolean  @default(false) @map("fragrance_sensitive")
   selfDescribedSensitive Boolean  @default(false) @map("self_described_sensitive")
   allowScanInChat        Boolean  @default(false) @map("allow_scan_in_chat")
+  deleteImageAfterAnalysis Boolean @default(true) @map("delete_image_after_analysis")
   createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt              DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
   user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -368,6 +369,9 @@ model KnowledgeChunk {
   heading            String   @default("")
   content            String
   contentHash        String   @map("content_hash")
+  chunkKey           String?  @unique @map("chunk_key")
+  topic              String   @default("")
+  lastReviewed       DateTime? @map("last_reviewed") @db.Date
   /// Present only when pgvector loaded. See docs/data-model.md.
   embedding          Unsupported("vector(384)")?
   embeddingFallback  Float[]  @default([]) @map("embedding_fallback")

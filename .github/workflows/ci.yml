@@ -19,6 +19,25 @@ jobs:
       - run: npm run prisma:validate
         env:
           DATABASE_URL: postgresql://riru:riru@localhost:5432/riru
+      - run: npm run build
+        env:
+          DATABASE_URL: postgresql://riru:riru@localhost:5432/riru
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          DEMO_MODE: "true"
+          LLM_PROVIDER: mock
+          EMBEDDINGS_PROVIDER: mock
 
   ml:
     runs-on: ubuntu-latest

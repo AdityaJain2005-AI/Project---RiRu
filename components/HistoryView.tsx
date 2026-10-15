@@ -5,12 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Camera, Loader2, Trash2 } from "lucide-react";
 import { Badge, Button, Card, EmptyState, ScoreRing, Skeleton, cn } from "./ui";
+import { scanWarnings } from "@/lib/scan-warnings";
 
 type ScanRow = {
   id: string;
   overallScore: number | null;
   summary: string;
   source: string;
+  analysisKind?: string;
+  status?: string;
   metrics: { id: string; label: string; score: number }[];
   createdAt: string;
 };
@@ -207,6 +210,14 @@ export function HistoryView() {
         <p className="mt-4 text-sm leading-relaxed text-zinc-600">
           {active.summary}
         </p>
+        {scanWarnings({
+          status: active.status ?? "succeeded",
+          analysisKind: active.analysisKind ?? "",
+        }).map((warning) => (
+          <p key={warning} className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            {warning}
+          </p>
+        ))}
         <div className="mt-4 space-y-2">
           {(active.metrics ?? []).slice(0, 6).map((m) => (
             <div

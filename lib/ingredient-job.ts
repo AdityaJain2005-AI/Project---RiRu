@@ -2,13 +2,16 @@ import {
   DISCLAIMER,
   EMPTY_PROFILE,
   evaluateVerdict,
+  explainMatched,
   matchTokens,
+  type IngredientNote,
   type IngredientProfile,
   type ParsedToken,
   type VerdictName,
   type VerdictReason,
 } from "@riru/shared";
 import { getPool, query } from "./db";
+import { discardLabelImage } from "./privacy";
 import { CatalogMissingError, loadIngredientData } from "./ingredient-catalog";
 import { consumeRateLimit, type RateDecision } from "./rate-limit";
 import { getStorage } from "./storage";
@@ -32,6 +35,7 @@ export type PublicVerdict = {
   verdict: VerdictName;
   reasons: VerdictReason[];
   unparsed: string[];
+  ingredients: IngredientNote[];
   rulesetVersion: string;
   disclaimer: typeof DISCLAIMER;
 };
@@ -521,6 +525,10 @@ export async function completeIngredientScan(input: IngredientWork): Promise<voi
     await markFailed(input.scanId, input.userId, "ML_UNAVAILABLE").catch((inner) =>
       logIngredient("ingredient_fail_update_failed", inner)
     );
+  } finally {
+    await discardLabelImage(input.userId, input.scanId).catch((inner) =>
+      logIngredient("ingredient_image_discard_failed", inner)
+    );
   }
 }
 
@@ -714,6 +722,7 @@ export async function analyzeIngredientText(
       verdict: verdict.verdict,
       reasons: verdict.reasons,
       unparsed: verdict.unparsed,
+      ingredients: explainMatched(tokens, loaded.data.catalog),
       rulesetVersion: verdict.rulesetVersion,
       disclaimer: DISCLAIMER,
     },

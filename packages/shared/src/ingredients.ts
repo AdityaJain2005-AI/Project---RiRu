@@ -278,6 +278,31 @@ export function parseRulePack(input: unknown): RulePack {
   return { version: parsed.data.version, rules };
 }
 
+export type IngredientNote = {
+  inci: string;
+  functions: string[];
+  plainDescription: string;
+};
+
+/** Catalog notes for names that matched. Unparsed tokens are left out. */
+export function explainMatched(tokens: ParsedToken[], catalog: IngredientCatalog): IngredientNote[] {
+  const notes: IngredientNote[] = [];
+  const seen = new Set<string>();
+  for (const token of tokens) {
+    if (token.status !== "matched" && token.status !== "fuzzy") continue;
+    if (!token.inci) continue;
+    const entry = catalog.byKey.get(normalizeInciKey(token.inci));
+    if (!entry || seen.has(entry.key)) continue;
+    seen.add(entry.key);
+    notes.push({
+      inci: entry.inci,
+      functions: entry.functions,
+      plainDescription: entry.plainDescription,
+    });
+  }
+  return notes;
+}
+
 export function lookupIngredient(catalog: IngredientCatalog, raw: string): CatalogEntry | null {
   const key = normalizeInciKey(raw);
   if (!key) return null;

@@ -43,7 +43,9 @@ services:
       ML_SERVICE_URL: http://ml:8000
       ML_SERVICE_TOKEN: dev-ml-token-change-me
       STORAGE_PROVIDER: none
-      LLM_PROVIDER: rules
+      LLM_PROVIDER: mock
+      EMBEDDINGS_PROVIDER: mock
+      EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
       GUEST_RETENTION_DAYS: "30"
       NODE_ENV: development
     depends_on:

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Camera } from "lucide-react";
 import { Button, PageHeader } from "@/components/ui";
 import { HistoryView } from "@/components/HistoryView";
+import { PrivacyPanel } from "@/components/PrivacyPanel";
+import { ProgressPanel } from "@/components/ProgressPanel";
 
 export const metadata: Metadata = {
   title: "History",
@@ -15,7 +17,7 @@ export default function HistoryPage() {
       <PageHeader
         eyebrow="Progress"
         title="Scan history"
-        description="Every scan is stored so you can see what’s improving week to week."
+        description="Succeeded scans, concern labels, and an optional daily check-in. Sample scores are not measurements."
         action={
           <Link href="/scan">
             <Button>
@@ -25,6 +27,8 @@ export default function HistoryPage() {
           </Link>
         }
       />
+      <PrivacyPanel />
+      <ProgressPanel />
       <HistoryView />
     </div>
   );

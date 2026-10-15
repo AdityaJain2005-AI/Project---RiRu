@@ -29,6 +29,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[var(--fl-bg)] text-zinc-900">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:shadow"
+      >
+        Skip to content
+      </a>
       {/* ambient */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -left-24 top-0 h-80 w-80 rounded-full bg-emerald-200/25 blur-3xl" />
@@ -42,14 +48,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Leaf className="h-4 w-4" />
             </span>
             <span className="leading-tight">
-              <span className="block text-[15px] font-semibold tracking-tight">Facelab</span>
+              <span className="block text-[15px] font-semibold tracking-tight">RiRu</span>
               <span className="hidden text-[10px] font-medium uppercase tracking-wider text-zinc-400 sm:block">
                 Skin OS
               </span>
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
             {NAV.map((item) => {
               const active =
                 item.href === "/"
@@ -83,12 +89,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pb-16 sm:pt-8">
+      <main id="main" tabIndex={-1} className="relative mx-auto max-w-6xl px-4 pb-28 pt-6 outline-none sm:px-6 sm:pb-16 sm:pt-8">
         {children}
       </main>
 
       {/* mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/70 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+      <nav aria-label="Mobile" className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/70 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
         <ul className="mx-auto grid max-w-xl grid-cols-7 px-0.5 py-1.5">
           {NAV.map((item) => {
             const active =

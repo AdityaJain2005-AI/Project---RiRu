@@ -1,7 +1,7 @@
 {
-  "name": "facelab",
+  "name": "riru",
   "version": "1.0.0",
-  "author": "Facelab",
+  "author": "RiRu",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -17,7 +17,9 @@
     "dev": "next dev --hostname 0.0.0.0 --port 3000",
     "start": "node .next/standalone/server.js",
     "migrate": "node migrate.js",
-    "test": "node --experimental-strip-types --test tests/session-token.test.ts tests/storage.test.ts tests/shared-schema.test.ts tests/image-bytes.test.ts tests/scan-analysis.test.ts tests/ingredients.test.ts tests/recommend.test.ts tests/routine-db.integration.test.ts",
+    "ingest:knowledge": "node --experimental-strip-types scripts/ingest-knowledge.ts",
+    "test": "node --experimental-strip-types --test tests/session-token.test.ts tests/storage.test.ts tests/shared-schema.test.ts tests/image-bytes.test.ts tests/scan-analysis.test.ts tests/ingredients.test.ts tests/inci-gold.test.ts tests/recommend.test.ts tests/chat-rag.test.ts tests/progress.test.ts tests/scan-warnings.test.ts tests/i18n.test.ts tests/routine-db.integration.test.ts tests/chat-db.integration.test.ts tests/privacy-db.integration.test.ts",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "prisma:validate": "prisma validate"
   },
@@ -31,6 +33,7 @@
     "yaml": "^2.8.1"
   },
   "devDependencies": {
+    "@playwright/test": "1.60.0",
     "@types/node": "^26.1.1",
     "@types/pg": "^8.11.11",
     "@types/react": "^19.2.17",
@@ -46,7 +49,7 @@
     "sharp": ">=0.35.0"
   },
   "keywords": [
-    "facelab",
+    "riru",
     "nextjs",
     "skincare",
     "zerops",

@@ -9,6 +9,8 @@ import { build } from 'esbuild';
 const phase1 = readFileSync(new URL('../db/phase1.sql', import.meta.url), 'utf8');
 const phase2 = readFileSync(new URL('../db/phase2.sql', import.meta.url), 'utf8');
 const phase3 = readFileSync(new URL('../db/phase3.sql', import.meta.url), 'utf8');
+const phase5 = readFileSync(new URL('../db/phase5.sql', import.meta.url), 'utf8');
+const phase6 = readFileSync(new URL('../db/phase6.sql', import.meta.url), 'utf8');
 
 await build({
   entryPoints: ['migrate.js'],
@@ -21,6 +23,8 @@ await build({
     __PHASE1_SQL__: JSON.stringify(phase1),
     __PHASE2_SQL__: JSON.stringify(phase2),
     __PHASE3_SQL__: JSON.stringify(phase3),
+    __PHASE5_SQL__: JSON.stringify(phase5),
+    __PHASE6_SQL__: JSON.stringify(phase6),
   },
 });
 

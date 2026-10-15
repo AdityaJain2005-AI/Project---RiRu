@@ -37,6 +37,7 @@ type ScanResult = {
   imageStored: boolean;
   disclaimer: string;
   escalation: string | null;
+  warnings?: string[];
 };
 
 type Step = "ready" | "live" | "uploading" | "analyzing" | "done";
@@ -443,6 +444,11 @@ export function ScanFlow() {
                     ? ` (${Math.round(result.skinTypeConfidence * 100)}% confidence, capped at 55%)`
                     : ""}
                   . Sensitive skin is taken from your profile, not from the photo.
+                </p>
+              )}
+              {result.warnings && result.warnings.length > 0 && (
+                <p className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                  {result.warnings.join(" ")}
                 </p>
               )}
               {result.quality && !result.quality.accepted && (

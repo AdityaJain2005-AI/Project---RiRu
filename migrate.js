@@ -25,6 +25,18 @@ function loadPhase3Sql() {
   return readFileSync(join(here, "db", "phase3.sql"), "utf8");
 }
 
+function loadPhase5Sql() {
+  if (typeof __PHASE5_SQL__ === "string") return __PHASE5_SQL__;
+  const here = dirname(fileURLToPath(import.meta.url));
+  return readFileSync(join(here, "db", "phase5.sql"), "utf8");
+}
+
+function loadPhase6Sql() {
+  if (typeof __PHASE6_SQL__ === "string") return __PHASE6_SQL__;
+  const here = dirname(fileURLToPath(import.meta.url));
+  return readFileSync(join(here, "db", "phase6.sql"), "utf8");
+}
+
 async function tryExtension(client, name) {
   try {
     await client.query(`CREATE EXTENSION IF NOT EXISTS ${name}`);
@@ -120,7 +132,7 @@ async function migrate() {
     `);
     await client.query(`
       INSERT INTO greetings (id, message)
-      VALUES (1, 'Facelab is live on Zerops!')
+      VALUES (1, 'RiRu is live on Zerops!')
       ON CONFLICT (id) DO NOTHING;
     `);
 
@@ -270,7 +282,13 @@ async function migrate() {
     await applyPhase1(client);
     await client.query(loadPhase2Sql());
     await client.query(loadPhase3Sql());
-    console.log("Migration complete (Facelab schema + RiRu phase 1, phase 2, and phase 3).");
+    await client.query(loadPhase5Sql());
+    await client.query(loadPhase6Sql());
+    await client.query(
+      `UPDATE greetings SET message = 'RiRu is live on Zerops!'
+       WHERE id = 1 AND message = 'Facelab is live on Zerops!'`
+    );
+    console.log("Migration complete (RiRu schema through phase 6).");
   } finally {
     client.release();
     await pool.end();

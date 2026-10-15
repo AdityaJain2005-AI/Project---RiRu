@@ -14,10 +14,12 @@ export async function GET() {
       overall_score: number | null;
       summary: string;
       source: string;
+      analysis_kind: string;
+      status: string;
       metrics: { id: string; label: string; score: number }[];
       created_at: string;
     }>(
-      `SELECT id, overall_score, summary, source, metrics, created_at
+      `SELECT id, overall_score, summary, source, metrics, analysis_kind, status, created_at
        FROM skin_scans WHERE user_id = $1
        ORDER BY created_at DESC LIMIT 40`,
       [userId]
@@ -29,6 +31,8 @@ export async function GET() {
         overallScore: r.overall_score,
         summary: r.summary,
         source: r.source,
+        analysisKind: r.analysis_kind,
+        status: r.status,
         metrics: r.metrics,
         createdAt: r.created_at,
       })),

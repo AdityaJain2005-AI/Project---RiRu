@@ -65,8 +65,14 @@ export async function GET(req: Request) {
       [userId]
     );
 
-    const chatRes = await query<{ id: string; role: string; content: string; created_at: string }>(
-      `SELECT id, role, content, created_at FROM chat_messages
+    const chatRes = await query<{
+      id: string;
+      role: string;
+      content: string;
+      created_at: string;
+      citations: unknown;
+    }>(
+      `SELECT id, role, content, created_at, citations FROM chat_messages
        WHERE user_id = $1 ORDER BY created_at ASC LIMIT 50`,
       [userId]
     );
@@ -133,9 +139,10 @@ export async function GET(req: Request) {
       })),
       messages: chatRes.rows.map((m) => ({
         id: m.id,
-        role: m.role as "user" | "ai",
+        role: m.role === "assistant" ? "ai" : (m.role as "user" | "ai"),
         text: m.content,
         createdAt: m.created_at,
+        citations: Array.isArray(m.citations) ? m.citations : [],
       })),
       prefs: {
         routinePhase: prefs.routine_phase as "am" | "pm",

@@ -13,8 +13,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Facelab — AI Skin Lab",
-    template: "%s · Facelab",
+    default: "RiRu — AI Skin Lab",
+    template: "%s · RiRu",
   },
   description:
     "Scan your skin, track biomarkers, follow a short routine, and chat with an AI cosmetologist.",

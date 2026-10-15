@@ -1,0 +1,31 @@
+# Normalizer gold set for the catalog in this repo.
+# This checks typed and OCR-like spellings. It is not a photographed-label benchmark.
+version: v1
+cases:
+  - raw: Aqua
+    inci: AQUA
+    status: matched
+  - raw: Water
+    inci: AQUA
+    status: matched
+  - raw: Glycerol
+    inci: GLYCERIN
+    status: matched
+  - raw: "Niacinamide (Vitamin B3)"
+    inci: NIACINAMIDE
+    status: matched
+  - raw: "CI 77891"
+    inci: TITANIUM DIOXIDE
+    status: matched
+  - raw: BPO
+    inci: BENZOYL PEROXIDE
+    status: matched
+  - raw: "Glycolc Acid"
+    inci: GLYCOLIC ACID
+    status: fuzzy
+  - raw: AQUX
+    inci: null
+    status: unparsed
+  - raw: "Mystery Wax"
+    inci: null
+    status: unparsed

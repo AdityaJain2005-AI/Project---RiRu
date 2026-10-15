@@ -4,8 +4,8 @@ import { PageHeader } from "@/components/ui";
 import { ChatPage } from "@/components/ChatPage";
 
 export const metadata: Metadata = {
-  title: "AI Cosmetologist",
-  description: "Chat grounded in your latest skin scan.",
+  title: "RiRu chat",
+  description: "Answers from RiRu notes, with citations. Informational only, not a medical diagnosis.",
 };
 
 export default function ChatRoute() {
@@ -13,8 +13,8 @@ export default function ChatRoute() {
     <div>
       <PageHeader
         eyebrow="Coach"
-        title="AI cosmetologist"
-        description="Short, practical answers based on your latest biomarkers."
+        title="RiRu chat"
+        description="Short answers from the notes in this app. Informational only, not a medical diagnosis."
       />
       <Suspense fallback={<p className="text-sm text-zinc-500">Loading chat…</p>}>
         <ChatPage />

@@ -41,7 +41,7 @@ export async function GET() {
   return Response.json(
     {
       status: "ok",
-      service: "facelab",
+      service: "riru",
       db,
       ml,
       scans,

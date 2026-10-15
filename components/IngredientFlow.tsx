@@ -20,10 +20,17 @@ type IngredientScan = {
   disclaimer: string;
 };
 
+type IngredientNote = {
+  inci: string;
+  functions: string[];
+  plainDescription: string;
+};
+
 type Verdict = {
   verdict: "good_fit" | "caution" | "avoid";
   reasons: { ruleKey: string; message: string }[];
   unparsed: string[];
+  ingredients?: IngredientNote[];
   rulesetVersion: string;
   disclaimer: string;
 };
@@ -299,6 +306,20 @@ export function IngredientFlow() {
                 <p className="text-sm text-zinc-600">
                   Not in the catalog: {verdict.unparsed.join(", ")}.
                 </p>
+              ) : null}
+              {verdict.ingredients && verdict.ingredients.length > 0 ? (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-zinc-900">What these ingredients are used for</h3>
+                  <ul className="space-y-3">
+                    {verdict.ingredients.map((item) => (
+                      <li key={item.inci} className="rounded-2xl bg-zinc-50 px-3 py-2">
+                        <p className="text-sm font-medium text-zinc-900">{item.inci}</p>
+                        <p className="text-xs text-zinc-500">Used as {item.functions.join(", ")}.</p>
+                        <p className="text-sm text-zinc-700">{item.plainDescription}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ) : null}
             </div>
           ) : null}

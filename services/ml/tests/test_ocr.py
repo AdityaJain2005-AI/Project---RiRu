@@ -35,6 +35,8 @@ def test_preprocess_scales_without_growing_past_the_long_edge() -> None:
     assert min(tiny.size) > 20
     huge = preprocess(Image.new("L", (4000, 3000), 128))
     assert max(huge.size) <= 2000
+    dark = preprocess(Image.new("RGB", (30, 20), (8, 8, 8)))
+    assert sum(dark.getdata()) / (dark.size[0] * dark.size[1]) > 200
 
 
 def test_ingredient_scan_requires_token() -> None:

@@ -1,4 +1,5 @@
 import { getPool, query } from "./db";
+import { discardFaceImage } from "./privacy";
 import { getStorage } from "./storage";
 import { consumeRateLimit, type RateDecision } from "./rate-limit";
 import {
@@ -7,6 +8,7 @@ import {
   type FaceAnalysis,
   type QualityReason,
 } from "./scan-analysis";
+import { scanWarnings } from "./scan-warnings";
 
 const DISCLAIMER = "Informational only, not a medical diagnosis.";
 const POLICY_VERSION = "2026-10-12";
@@ -42,6 +44,7 @@ export type PublicScan = {
   createdAt: string;
   disclaimer: typeof DISCLAIMER;
   escalation: string | null;
+  warnings: string[];
 };
 
 type ScanRow = {
@@ -195,6 +198,11 @@ function toPublic(row: ScanRow, findings: PublicFinding[]): PublicScan {
     createdAt: iso(row.created_at),
     disclaimer: DISCLAIMER,
     escalation,
+    warnings: scanWarnings({
+      status: row.status,
+      analysisKind: row.analysis_kind,
+      findings,
+    }),
   };
 }
 
@@ -616,6 +624,10 @@ export async function completeFaceScan(input: {
       "ML_UNAVAILABLE",
       "The analysis service failed. No scores were invented."
     ).catch((inner) => logScan("scan_fail_update_failed", inner));
+  } finally {
+    await discardFaceImage(input.userId, input.scanId).catch((inner) =>
+      logScan("scan_image_discard_failed", inner)
+    );
   }
 }
 
