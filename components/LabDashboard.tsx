@@ -163,6 +163,20 @@ export function LabDashboard() {
     await load();
   }
 
+  async function removeIngredient(ing: Ingredient) {
+    const res = await fetch("/api/prefs", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ removeIngredient: ing.name }),
+    });
+    if (!res.ok) {
+      flash("Could not remove ingredient");
+      return;
+    }
+    flash(`Removed ${ing.name} from the ingredient list`);
+    await load();
+  }
+
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault();
     const res = await fetch("/api/prefs", {
@@ -749,6 +763,16 @@ export function LabDashboard() {
                       onClick={() => void toggleFav(ing)}
                     >
                       {ing.favorited ? "Saved ★" : "Save ingredient"}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="w-full"
+                      type="button"
+                      onClick={() => void removeIngredient(ing)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                      Remove from list
                     </Button>
                     <Button
                       size="sm"

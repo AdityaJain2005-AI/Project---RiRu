@@ -68,10 +68,25 @@ export async function POST(req: Request) {
       }
       return v as T;
     };
-    const ocrIngredients = prow ? parseJson<string[]>(prow.ingredients, []) : [];
-    const ocrDetails = prow ? parseJson<IngredientDetail[]>(prow.details, []) : [];
+    const prefsRes = await query<{ settings: Record<string, unknown> }>(
+      `SELECT settings FROM user_prefs WHERE user_id = $1`,
+      [DEMO_USER_ID]
+    );
+    const excluded = new Set(
+      Array.isArray(prefsRes.rows[0]?.settings?.excludedIngredients)
+        ? (prefsRes.rows[0].settings.excludedIngredients as unknown[]).map((n) => String(n).toLowerCase())
+        : []
+    );
+    const ocrIngredients = prow
+      ? parseJson<string[]>(prow.ingredients, []).filter((n) => !excluded.has(n.toLowerCase()))
+      : [];
+    const ocrDetails = prow
+      ? parseJson<IngredientDetail[]>(prow.details, []).filter((d) => !excluded.has(d.name.toLowerCase()))
+      : [];
     const chatAdded = chatHistory.rows.flatMap((m) =>
-      m.role === "user" ? extractChatIngredients(m.content) : []
+      m.role === "user"
+        ? extractChatIngredients(m.content).filter((n) => !excluded.has(n.toLowerCase()))
+        : []
     );
     const mergedNames = [...new Set([...ocrIngredients, ...chatAdded])];
     const chatDetails = explainIngredients(chatAdded);

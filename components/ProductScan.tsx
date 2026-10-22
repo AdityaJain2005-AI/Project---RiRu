@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FlaskConical, Loader2, Upload } from "lucide-react";
+import { FlaskConical, Loader2, Trash2, Upload } from "lucide-react";
 import { Badge, Button, Card, cn } from "./ui";
 import type { IngredientDetail } from "@/lib/ocr";
 
@@ -59,6 +59,21 @@ export function ProductScan() {
       setError(e instanceof Error ? e.message : "Parse failed");
     } finally {
       setBusy(null);
+    }
+  }
+
+  async function removeIngredient(name: string) {
+    try {
+      const res = await fetch("/api/prefs", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ removeIngredient: name }),
+      });
+      if (!res.ok) throw new Error("Could not remove ingredient");
+      setIngredients((items) => items.filter((item) => item !== name));
+      setDetails((items) => items?.filter((item) => item.name !== name) ?? []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not remove ingredient");
     }
   }
 
@@ -167,11 +182,24 @@ export function ProductScan() {
                     d.rating === "caution" && "border-amber-500"
                   )}
                 >
-                  <p className="text-sm font-medium text-zinc-900">{d.name}</p>
-                  <p className="text-xs text-zinc-500">{d.function}</p>
-                  <p className="mt-0.5 text-[11px] text-zinc-400">
-                    {d.concern}
-                  </p>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium text-zinc-900">{d.name}</p>
+                      <p className="text-xs text-zinc-500">{d.function}</p>
+                      <p className="mt-0.5 text-[11px] text-zinc-400">
+                        {d.concern}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      title={`Remove ${d.name} from ingredient list`}
+                      aria-label={`Remove ${d.name} from ingredient list`}
+                      className="rounded-lg p-1.5 text-zinc-400 hover:bg-rose-50 hover:text-rose-600"
+                      onClick={() => void removeIngredient(d.name)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

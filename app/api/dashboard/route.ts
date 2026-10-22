@@ -115,11 +115,18 @@ export async function GET(req: Request) {
       }
       return v as T;
     };
+    const excluded = new Set(
+      Array.isArray((prefs.settings as { excludedIngredients?: unknown })?.excludedIngredients)
+        ? ((prefs.settings as { excludedIngredients: unknown[] }).excludedIngredients).map((n) => String(n).toLowerCase())
+        : []
+    );
     for (const row of [...productRes.rows].reverse()) {
       const details = parseJson<IngredientDetail[]>(row.details, []);
       const names = parseJson<string[]>(row.ingredients, []);
       const list = details.length ? details : explainIngredients(names);
-      for (const d of list) byName.set(d.name.toLowerCase(), d);
+      for (const d of list) {
+        if (!excluded.has(d.name.toLowerCase())) byName.set(d.name.toLowerCase(), d);
+      }
     }
     const ingredients = toLabIngredients([...byName.values()], favorites);
 

@@ -12,6 +12,8 @@ export async function PATCH(req: Request) {
       markNotificationsRead?: boolean;
       clearNotifications?: boolean;
       routineDone?: { phase: "am" | "pm"; steps: number[] };
+      removeIngredient?: string;
+      restoreIngredient?: string;
     };
 
     if (body.routinePhase === "am" || body.routinePhase === "pm") {
@@ -60,6 +62,29 @@ export async function PATCH(req: Request) {
 
     if (body.clearNotifications) {
       await query(`DELETE FROM notifications WHERE user_id = $1`, [DEMO_USER_ID]);
+    }
+
+    if (body.removeIngredient || body.restoreIngredient) {
+      const prefs = await query<{ settings: Record<string, unknown> }>(
+        `SELECT settings FROM user_prefs WHERE user_id = $1`,
+        [DEMO_USER_ID]
+      );
+      const settings = { ...(prefs.rows[0]?.settings ?? {}) } as Record<string, unknown>;
+      const excluded = Array.isArray(settings.excludedIngredients)
+        ? settings.excludedIngredients.map(String)
+        : [];
+      if (body.removeIngredient && !excluded.includes(body.removeIngredient)) {
+        excluded.push(body.removeIngredient);
+      }
+      if (body.restoreIngredient) {
+        settings.excludedIngredients = excluded.filter((n) => n !== body.restoreIngredient);
+      } else {
+        settings.excludedIngredients = excluded;
+      }
+      await query(
+        `UPDATE user_prefs SET settings = $2::jsonb, updated_at = NOW() WHERE user_id = $1`,
+        [DEMO_USER_ID, JSON.stringify(settings)]
+      );
     }
 
     if (body.routineDone) {

@@ -84,10 +84,10 @@ function seed(): MemStore {
     users: [
       {
         id: DEMO_USER_ID,
-        name: "Maya Chen",
-        initials: "MC",
-        skin_type: "Combination",
-        streak_days: 12,
+        name: "Anonymous",
+        initials: "AN",
+        skin_type: "Not set",
+        streak_days: 0,
         created_at: nowIso(),
         updated_at: nowIso(),
       },
