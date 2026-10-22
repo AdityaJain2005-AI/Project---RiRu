@@ -1,5 +1,6 @@
 import { DEMO_USER_ID, query } from "@/lib/db";
 import { ROUTINE } from "@/lib/scan-engine";
+import { explainIngredients, toLabIngredients, type IngredientDetail } from "@/lib/ocr";
 
 export const dynamic = "force-dynamic";
 
@@ -94,10 +95,33 @@ export async function GET(req: Request) {
       ? prefs.favorite_ingredients
       : [];
 
-    const ingredients = ((scan?.ingredients as { name: string }[]) ?? []).map((ing) => ({
-      ...ing,
-      favorited: favorites.includes(ing.name),
-    }));
+    const productRes = await query<{
+      ingredients: unknown;
+      details: unknown;
+    }>(
+      `SELECT ingredients, details FROM product_scans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 40`,
+      [DEMO_USER_ID]
+    ).catch(() => ({ rows: [] as { ingredients: unknown; details: unknown }[] }));
+
+    const byName = new Map<string, IngredientDetail>();
+    const parseJson = <T,>(v: unknown, fallback: T): T => {
+      if (v == null) return fallback;
+      if (typeof v === "string") {
+        try {
+          return JSON.parse(v) as T;
+        } catch {
+          return fallback;
+        }
+      }
+      return v as T;
+    };
+    for (const row of [...productRes.rows].reverse()) {
+      const details = parseJson<IngredientDetail[]>(row.details, []);
+      const names = parseJson<string[]>(row.ingredients, []);
+      const list = details.length ? details : explainIngredients(names);
+      for (const d of list) byName.set(d.name.toLowerCase(), d);
+    }
+    const ingredients = toLabIngredients([...byName.values()], favorites);
 
     return Response.json({
       user: {

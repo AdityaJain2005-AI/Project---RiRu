@@ -1,6 +1,7 @@
-import { cosmetologistReply } from "@/lib/chat-engine";
+import { cosmetologistReply, chatSystemPrompt, type ProductContext } from "@/lib/chat-engine";
 import { DEMO_USER_ID, query } from "@/lib/db";
 import type { ScanPayload } from "@/lib/scan-engine";
+import { explainIngredients, extractChatIngredients, type IngredientDetail } from "@/lib/ocr";
 
 export const dynamic = "force-dynamic";
 
@@ -43,8 +44,50 @@ export async function POST(req: Request) {
         }
       : null;
 
-    // Optional SpaceXAI / xAI if key present; otherwise rule engine.
-    let reply = cosmetologistReply(text, scan);
+    const productRes = await query<{
+      ingredients: string[] | string;
+      details: IngredientDetail[] | string;
+    }>(
+      `SELECT ingredients, details FROM product_scans WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [DEMO_USER_ID]
+    ).catch(() => ({ rows: [] as { ingredients: string[]; details: IngredientDetail[] }[] }));
+
+    const prow = productRes.rows[0];
+    const chatHistory = await query<{ role: string; content: string }>(
+      `SELECT role, content FROM chat_messages WHERE user_id = $1 ORDER BY created_at ASC LIMIT 100`,
+      [DEMO_USER_ID]
+    );
+    const parseJson = <T,>(v: unknown, fallback: T): T => {
+      if (v == null) return fallback;
+      if (typeof v === "string") {
+        try {
+          return JSON.parse(v) as T;
+        } catch {
+          return fallback;
+        }
+      }
+      return v as T;
+    };
+    const ocrIngredients = prow ? parseJson<string[]>(prow.ingredients, []) : [];
+    const ocrDetails = prow ? parseJson<IngredientDetail[]>(prow.details, []) : [];
+    const chatAdded = chatHistory.rows.flatMap((m) =>
+      m.role === "user" ? extractChatIngredients(m.content) : []
+    );
+    const mergedNames = [...new Set([...ocrIngredients, ...chatAdded])];
+    const chatDetails = explainIngredients(chatAdded);
+    const detailByName = new Map(
+      [...ocrDetails, ...chatDetails].map((d) => [d.name.toLowerCase(), d])
+    );
+    const product: ProductContext | null = mergedNames.length
+      ? {
+          ingredients: mergedNames,
+          details: mergedNames.map((name) =>
+            detailByName.get(name.toLowerCase()) ?? explainIngredients([name])[0]
+          ),
+        }
+      : null;
+
+    let reply = cosmetologistReply(text, scan, product);
     const apiKey = process.env.XAI_API_KEY;
     if (apiKey) {
       try {
@@ -59,12 +102,11 @@ export async function POST(req: Request) {
             messages: [
               {
                 role: "system",
-                content:
-                  "You are Facelab AI Cosmetologist. Short practical skincare advice. Use the user's latest scan scores when provided. No medical diagnosis.",
+                content: chatSystemPrompt(scan, product),
               },
               {
                 role: "user",
-                content: `Latest scan: ${JSON.stringify(scan)}\n\nUser: ${text}`,
+                content: text,
               },
             ],
             temperature: 0.5,

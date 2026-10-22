@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Camera,
+  FlaskConical,
   Home,
   LayoutDashboard,
   Leaf,
@@ -19,6 +20,7 @@ const NAV = [
   { href: "/dashboard", label: "Lab", icon: LayoutDashboard },
   { href: "/routine", label: "Routine", icon: ListChecks },
   { href: "/history", label: "History", icon: History },
+  { href: "/product", label: "OCR", icon: FlaskConical },
   { href: "/chat", label: "Chat", icon: MessageCircle },
 ];
 
@@ -87,7 +89,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/70 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
-        <ul className="mx-auto grid max-w-xl grid-cols-6 px-0.5 py-1.5">
+        <ul className="mx-auto grid max-w-xl grid-cols-7 px-0.5 py-1.5">
           {NAV.map((item) => {
             const active =
               item.href === "/"

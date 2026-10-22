@@ -8,9 +8,9 @@ export async function POST(req: Request) {
     const body = (await req.json().catch(() => ({}))) as {
       source?: "camera" | "upload";
       fileName?: string;
-      /** Optional data URL or note that a live frame was captured */
       captured?: boolean;
       imageMeta?: { width?: number; height?: number; bytes?: number };
+      cv?: { quality?: number; views?: string[] };
     };
     const source = body.source === "upload" ? "upload" : "camera";
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       prevMap[m.id] = m.score;
     }
 
-    const payload = generateScan(source, prevMap);
+    const payload = generateScan(source, prevMap, body.cv);
 
     const insert = await query<{ id: string; created_at: string }>(
       `INSERT INTO skin_scans

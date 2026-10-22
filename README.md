@@ -1,16 +1,22 @@
-# React + Vite
+# Facelab
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+One Next.js app: MediaPipe face scan (CV), Tesseract ingredient OCR, and the skin lab UI.
 
-Currently, two official plugins are available:
+```bash
+cd Project---RiRu
+npm install
+npm run dev
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Open http://localhost:3000
 
-## React Compiler
+| Route | What it is |
+| --- | --- |
+| `/scan` | Live MediaPipe Face Landmarker, 3-view capture, biomarker scores |
+| `/product` | Label OCR (Tesseract in the browser) + ingredient dictionary |
+| `/dashboard` | Lab scores, concerns, matched actives |
+| `/routine` `/history` `/chat` | Routine, history, AI cosmetologist |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+No Postgres required locally. Scans persist in `data/store.json`. If `DB_HOST` is set, it uses PostgreSQL instead.
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+The old Flask scanner still lives under `scanner/` but is no longer needed to run the app.

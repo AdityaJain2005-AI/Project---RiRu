@@ -82,7 +82,7 @@ export function ChatPage() {
         <div>
           <p className="text-sm font-semibold">AI Cosmetologist</p>
           <p className="text-[11px] text-zinc-500">
-            Knows your latest scan · replies saved to your lab
+            Uses your latest face scan and any product OCR label
           </p>
         </div>
         <Badge tone="emerald" className="ml-auto">
@@ -98,7 +98,7 @@ export function ChatPage() {
         )}
         {!loading && messages.length === 0 && (
           <p className="rounded-2xl bg-zinc-50 px-4 py-3 text-sm text-zinc-500">
-            Ask about hydration, SPF, cleanser swaps, or tonight’s routine.
+            Ask about a scanned label, whether a product fits your scores, dryness, SPF, or tonight’s routine.
           </p>
         )}
         {messages.map((msg, i) => (
@@ -125,9 +125,9 @@ export function ChatPage() {
       <div className="border-t border-zinc-100 p-3">
         <div className="mb-2 flex flex-wrap gap-1.5">
           {[
+            "Is my last OCR product ok?",
+            "Any cautions on that label?",
             "Why is hydration low?",
-            "Tweak my PM for 5 minutes",
-            "Travel SPF kit",
             "Explain my latest scan",
           ].map((q) => (
             <button

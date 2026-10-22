@@ -1,9 +1,13 @@
-import type { NextConfig } from 'next'
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Standalone mode bundles all runtime dependencies using
-  // @vercel/nft import tracing — no node_modules needed at runtime.
-  output: 'standalone',
-}
+  output: "standalone",
+  serverExternalPackages: ["@mediapipe/tasks-vision"],
+  webpack: (config) => {
+    config.module.exprContextCritical = false;
+    config.module.unknownContextCritical = false;
+    return config;
+  },
+};
 
-export default nextConfig
+export default nextConfig;

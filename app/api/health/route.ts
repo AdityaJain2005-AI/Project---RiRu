@@ -1,9 +1,9 @@
-import { query } from "@/lib/db";
+import { query, storageMode } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  let db: "ok" | "error" = "error";
+  let db: "ok" | "error" | "local" = "error";
   let detail = "";
   let scans = 0;
 
@@ -11,7 +11,7 @@ export async function GET() {
     await query("SELECT 1");
     const r = await query<{ c: number }>(`SELECT COUNT(*)::int AS c FROM skin_scans`);
     scans = r.rows[0]?.c ?? 0;
-    db = "ok";
+    db = storageMode() === "local" ? "local" : "ok";
   } catch (err) {
     detail = err instanceof Error ? err.message : String(err);
   }

@@ -144,7 +144,7 @@ export default async function HomePage() {
         </Card>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
             t: "Guided scan",
@@ -160,6 +160,11 @@ export default async function HomePage() {
             t: "AI cosmetologist",
             d: "Answers grounded in your latest scores — not generic tips.",
             href: "/chat",
+          },
+          {
+            t: "Product OCR",
+            d: "Photograph an INCI list. Tesseract reads it in this same app.",
+            href: "/product",
           },
         ].map((c) => (
           <Link key={c.t} href={c.href}>

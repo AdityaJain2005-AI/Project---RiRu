@@ -77,7 +77,8 @@ function tipFor(id: string, score: number): string {
 /** Deterministic-ish scan with light randomness so each run feels live. */
 export function generateScan(
   source: ScanPayload["source"] = "camera",
-  previous?: Partial<Record<string, number>>
+  previous?: Partial<Record<string, number>>,
+  cv?: { quality?: number; views?: string[] }
 ): ScanPayload {
   const base: Record<string, number> = {
     hydration: previous?.hydration ?? 72,
@@ -88,7 +89,10 @@ export function generateScan(
     pigment: previous?.pigment ?? 63,
   };
 
-  const jitter = () => Math.floor(Math.random() * 7) - 2; // -2..+4-ish
+  const qualityBoost =
+    typeof cv?.quality === "number" ? Math.round((cv.quality - 50) / 20) : 0;
+  const viewBoost = (cv?.views?.length ?? 0) >= 3 ? 2 : 0;
+  const jitter = () => Math.floor(Math.random() * 7) - 2 + qualityBoost + viewBoost;
 
   const defs = [
     { id: "hydration", label: "Hydration" },
@@ -154,14 +158,7 @@ export function generateScan(
     confidence: Math.min(0.98, Math.round(c.confidence * 100) / 100),
   }));
 
-  const ingredients: Ingredient[] = [
-    { name: "Niacinamide 5%", role: "Brighten", match: clamp(overallScore + 12, 70, 99), tone: "emerald" },
-    { name: "Hyaluronic Acid", role: "Hydrate", match: clamp(metrics[0].score + 18, 70, 99), tone: "teal" },
-    { name: "Ceramide NP", role: "Barrier", match: clamp(metrics[1].score + 10, 70, 99), tone: "emerald" },
-    { name: "Azelaic Acid 10%", role: "Calm", match: clamp(metrics[3].score + 12, 70, 99), tone: "teal" },
-    { name: "Vitamin C 15%", role: "Antioxidant", match: clamp(metrics[5].score + 20, 70, 99), tone: "emerald" },
-    { name: "Peptide Complex", role: "Firm", match: clamp(metrics[4].score + 5, 70, 99), tone: "teal" },
-  ];
+  const ingredients: Ingredient[] = [];
 
   const weak = [...metrics].sort((a, b) => a.score - b.score)[0];
   const strong = [...metrics].sort((a, b) => b.score - a.score)[0];

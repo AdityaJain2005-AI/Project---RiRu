@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui";
-import { ScanFlow } from "@/components/ScanFlow";
+import { ScanFlowClient } from "@/components/ScanFlowClient";
 
 export const metadata: Metadata = {
   title: "Face scan",
-  description: "Guided AI skin scan — camera or photo.",
+  description: "Guided AI skin scan — MediaPipe landmarks or photo.",
 };
 
 export default function ScanPage() {
@@ -13,9 +13,9 @@ export default function ScanPage() {
       <PageHeader
         eyebrow="Diagnostic"
         title="Face scan"
-        description="One quiet minute. We map landmarks, score biomarkers, and save everything to your lab history."
+        description="One quiet minute. MediaPipe maps landmarks across three views, then we score biomarkers into your lab history."
       />
-      <ScanFlow />
+      <ScanFlowClient />
     </div>
   );
 }

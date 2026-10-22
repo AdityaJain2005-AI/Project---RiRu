@@ -1,0 +1,147 @@
+﻿.camera-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.camera-screen {
+  position: relative;
+  min-height: 420px;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  background: linear-gradient(135deg, #020617 0%, #111827 100%);
+}
+
+.camera-placeholder {
+  display: flex;
+  min-height: 420px;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: rgba(248, 250, 252, 0.8);
+}
+
+.camera-guide {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: min(70vw, 280px);
+  aspect-ratio: 1;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.3);
+}
+
+.camera-guide::before {
+  content: '';
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: inherit;
+}
+
+.camera-instruction {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  z-index: 2;
+  max-width: calc(100% - 2rem);
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 0.625rem 1rem;
+  background: rgba(2, 6, 23, 0.72);
+  color: #f8fafc;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.camera-debug-canvas {
+  z-index: 3;
+}
+
+.camera-debug-panel {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 5;
+  max-width: min(19rem, calc(100% - 2rem));
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(2, 6, 23, 0.9);
+  color: #f8fafc;
+  font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35);
+}
+
+.camera-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-badge {
+  backdrop-filter: blur(10px);
+}
+
+.scan-progress {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 4;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.875rem;
+  padding: 0.65rem 0.8rem;
+  background: rgba(2, 6, 23, 0.78);
+  color: #f8fafc;
+  backdrop-filter: blur(10px);
+}
+
+.scan-progress-title {
+  margin-bottom: 0.35rem;
+  color: #bae6fd;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.scan-progress-steps {
+  display: flex;
+  gap: 0.7rem;
+  font-size: 0.75rem;
+}
+
+.scan-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: rgba(248, 250, 252, 0.58);
+}
+
+.scan-progress-step.is-current {
+  color: #f8fafc;
+}
+
+.scan-progress-step.is-captured {
+  color: #86efac;
+}
+
+.scan-progress-dot {
+  font-size: 0.8rem;
+}
+
+.scan-countdown {
+  margin-top: 0.2rem;
+  color: #7dd3fc;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+}
