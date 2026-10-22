@@ -5,6 +5,7 @@ import { useFacePose } from '@/vision/hooks/useFacePose'
 import { useFacePositioning } from '@/vision/hooks/useFacePositioning'
 import { useImageQuality } from '@/vision/hooks/useImageQuality'
 import { useMultiAngleScan } from '@/vision/hooks/useMultiAngleScan'
+import { analyzeSkinSignals } from '@/vision/skinSignals'
 import ScanOverlay from './ScanOverlay'
 import ScanProgress from './ScanProgress'
 import { getYawCorrection, MULTI_ANGLE_STATES } from '@/vision/multiAngle'
@@ -87,7 +88,8 @@ function FaceScan({ onScanSessionChange }) {
     const height = video.videoHeight || 720
     canvas.width = width
     canvas.height = height
-    canvas.getContext('2d')?.drawImage(video, 0, 0, width, height)
+    const context = canvas.getContext('2d')
+    context?.drawImage(video, 0, 0, width, height)
     const { file } = await prepareCapturedFrame(canvas)
 
     return {
@@ -97,9 +99,10 @@ function FaceScan({ onScanSessionChange }) {
       pitch: pose.pitch,
       roll: pose.roll,
       qualityScore: quality.qualityScore,
+      skinSignals: analyzeSkinSignals(context, faceAnalysis.bounds),
       timestamp: Date.now(),
     }
-  }, [pose.pitch, pose.roll, pose.yaw, quality.qualityScore, videoRef])
+  }, [faceAnalysis.bounds, pose.pitch, pose.roll, pose.yaw, quality.qualityScore, videoRef])
 
   const multiAngleScan = useMultiAngleScan({
     scannerValidation,

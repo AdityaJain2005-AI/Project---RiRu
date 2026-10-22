@@ -23,6 +23,22 @@ export type Ingredient = {
   favorited?: boolean;
 };
 
+export type SkinSignals = {
+  meanLuma: number;
+  lumaVariance: number;
+  redness: number;
+  saturation: number;
+  darkRatio: number;
+  brightRatio: number;
+  sampleCount: number;
+};
+
+export type ScanCvInput = {
+  quality?: number;
+  views?: string[];
+  signals?: SkinSignals[];
+};
+
 export type ScanPayload = {
   overallScore: number;
   metrics: Metric[];
@@ -74,11 +90,43 @@ function tipFor(id: string, score: number): string {
   return score >= 75 ? pair[0] : pair[1];
 }
 
-/** Deterministic-ish scan with light randomness so each run feels live. */
+function averageSignals(signals: SkinSignals[]) {
+  const valid = signals.filter((s) => s && s.sampleCount > 0);
+  if (!valid.length) return null;
+  const keys: (keyof SkinSignals)[] = [
+    "meanLuma",
+    "lumaVariance",
+    "redness",
+    "saturation",
+    "darkRatio",
+    "brightRatio",
+  ];
+  return Object.fromEntries(
+    keys.map((key) => [key, valid.reduce((sum, item) => sum + Number(item[key]), 0) / valid.length])
+  ) as Omit<SkinSignals, "sampleCount">;
+}
+
+function visualProxyScores(signals: Omit<SkinSignals, "sampleCount">) {
+  const evenLight = 1 - Math.min(1, signals.darkRatio + signals.brightRatio);
+  const uniformity = Math.max(0, 1 - Math.min(1, Math.sqrt(signals.lumaVariance) / 90));
+  const rednessPenalty = Math.max(0, signals.redness) * 0.8;
+  const brightness = (signals.meanLuma - 105) * 0.12;
+  const base = 64 + brightness + evenLight * 8 + uniformity * 8 - rednessPenalty;
+  return {
+    hydration: clamp(base + (1 - signals.saturation) * 8),
+    barrier: clamp(base + uniformity * 7 - rednessPenalty * 0.3),
+    texture: clamp(base + uniformity * 10 - Math.sqrt(signals.lumaVariance) * 0.08),
+    clarity: clamp(base + evenLight * 5 - rednessPenalty * 0.7),
+    elasticity: clamp(base + uniformity * 6),
+    pigment: clamp(base + evenLight * 4 - rednessPenalty * 0.5),
+  };
+}
+
+/** Uses captured visual signals when available; legacy fallback is retained for old clients. */
 export function generateScan(
   source: ScanPayload["source"] = "camera",
   previous?: Partial<Record<string, number>>,
-  cv?: { quality?: number; views?: string[] }
+  cv?: ScanCvInput
 ): ScanPayload {
   const base: Record<string, number> = {
     hydration: previous?.hydration ?? 72,
@@ -92,6 +140,8 @@ export function generateScan(
   const qualityBoost =
     typeof cv?.quality === "number" ? Math.round((cv.quality - 50) / 20) : 0;
   const viewBoost = (cv?.views?.length ?? 0) >= 3 ? 2 : 0;
+  const averagedSignals = averageSignals(cv?.signals ?? []);
+  const derivedScores = averagedSignals ? visualProxyScores(averagedSignals) : null;
   const jitter = () => Math.floor(Math.random() * 7) - 2 + qualityBoost + viewBoost;
 
   const defs = [
@@ -105,7 +155,11 @@ export function generateScan(
 
   const metrics: Metric[] = defs.map((d) => {
     const prev = base[d.id];
-    const score = clamp(prev + jitter() + (source === "upload" ? 1 : 0));
+    const score = clamp(
+      derivedScores
+        ? derivedScores[d.id as keyof typeof derivedScores]
+        : prev + jitter() + (source === "upload" ? 1 : 0)
+    );
     const delta = score - prev;
     return {
       id: d.id,
@@ -170,7 +224,7 @@ export function generateScan(
     ingredients,
     streakDays: 12 + Math.floor(Math.random() * 3),
     source,
-    summary: `${strong.label} is strongest at ${strong.score}. Focus next on ${weak.label.toLowerCase()} (${weak.score}) via targeted actives.`,
+    summary: `${derivedScores ? "Visual proxy scan" : "Preliminary scan"}: ${strong.label} is strongest at ${strong.score}. Focus next on ${weak.label.toLowerCase()} (${weak.score}) via targeted actives.${derivedScores ? " Lighting, color, and texture signals influenced this result; this is not a clinical diagnosis." : " Improve capture quality for a more individualized result."}`,
   };
 }
 

@@ -1,5 +1,5 @@
 import { DEMO_USER_ID, query } from "@/lib/db";
-import { generateScan } from "@/lib/scan-engine";
+import { generateScan, type ScanCvInput } from "@/lib/scan-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       fileName?: string;
       captured?: boolean;
       imageMeta?: { width?: number; height?: number; bytes?: number };
-      cv?: { quality?: number; views?: string[] };
+      cv?: ScanCvInput;
     };
     const source = body.source === "upload" ? "upload" : "camera";
 

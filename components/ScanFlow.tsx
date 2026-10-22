@@ -27,9 +27,19 @@ type Step = "ready" | "analyzing" | "done";
 
 type Review = {
   session: { frontImage?: File | null; leftImage?: File | null; rightImage?: File | null };
-  views?: Record<string, { metadata?: { qualityScore?: number; yaw?: number } | null }>;
+  views?: Record<string, { metadata?: { qualityScore?: number; yaw?: number; skinSignals?: SkinSignals | null } | null }>;
   isComplete: boolean;
   retake?: (view: string) => void;
+};
+
+type SkinSignals = {
+  meanLuma: number;
+  lumaVariance: number;
+  redness: number;
+  saturation: number;
+  darkRatio: number;
+  brightRatio: number;
+  sampleCount: number;
 };
 
 export function ScanFlow() {
@@ -65,6 +75,10 @@ export function ScanFlow() {
           ? qualities.reduce((a, b) => a + b, 0) / qualities.length
           : undefined;
 
+      const signals = Object.values(review.views ?? {})
+        .map((v) => v.metadata?.skinSignals)
+        .filter((value): value is SkinSignals => Boolean(value));
+
       const res = await fetch("/api/scans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -78,6 +92,7 @@ export function ScanFlow() {
               return Boolean(review.session[key]);
             }),
             quality,
+            signals,
           },
         }),
       });
