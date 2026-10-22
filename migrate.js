@@ -36,8 +36,8 @@ async function migrate() {
         id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         name        TEXT NOT NULL,
         initials    TEXT NOT NULL,
-        skin_type   TEXT NOT NULL DEFAULT 'Combination',
-        streak_days INTEGER NOT NULL DEFAULT 1,
+        skin_type   TEXT NOT NULL DEFAULT 'Not set',
+        streak_days INTEGER NOT NULL DEFAULT 0,
         created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
@@ -46,7 +46,7 @@ async function migrate() {
     await client.query(
       `
       INSERT INTO users (id, name, initials, skin_type, streak_days)
-      VALUES ($1, 'Maya Chen', 'MC', 'Combination', 12)
+      VALUES ($1, 'Anonymous', 'AN', 'Not set', 0)
       ON CONFLICT (id) DO NOTHING;
     `,
       [DEMO_USER_ID]
@@ -112,67 +112,6 @@ async function migrate() {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
     `);
-
-    // Seed first scan if none
-    const { rows: scanCount } = await client.query(
-      `SELECT COUNT(*)::int AS c FROM skin_scans WHERE user_id = $1`,
-      [DEMO_USER_ID]
-    );
-    if (scanCount[0].c === 0) {
-      const metrics = [
-        { id: "hydration", label: "Hydration", score: 72, delta: 4, status: "good", tip: "Slightly below optimal. Layer a humectant serum AM/PM." },
-        { id: "barrier", label: "Barrier", score: 81, delta: 6, status: "excellent", tip: "Ceramide levels look strong. Keep your current moisturizer." },
-        { id: "texture", label: "Texture", score: 68, delta: -2, status: "fair", tip: "Mild roughness on cheeks. Gentle exfoliation 2×/week." },
-        { id: "clarity", label: "Clarity", score: 74, delta: 8, status: "good", tip: "Post-inflammatory marks fading. Stay consistent with niacinamide." },
-        { id: "elasticity", label: "Elasticity", score: 85, delta: 3, status: "excellent", tip: "Firmness is excellent for your age group. Maintain SPF daily." },
-        { id: "pigment", label: "Even Tone", score: 63, delta: 1, status: "fair", tip: "UV-related unevenness on T-zone. Boost antioxidant serum." },
-      ];
-      const concerns = [
-        { id: "pores", title: "Enlarged pores", severity: "Mild", zone: "T-zone", confidence: 0.91 },
-        { id: "dryness", title: "Dehydration lines", severity: "Moderate", zone: "Cheeks", confidence: 0.86 },
-        { id: "spots", title: "Post-acne marks", severity: "Mild", zone: "Jawline", confidence: 0.78 },
-      ];
-      const ingredients = [
-        { name: "Niacinamide 5%", role: "Brighten", match: 96, tone: "emerald" },
-        { name: "Hyaluronic Acid", role: "Hydrate", match: 94, tone: "teal" },
-        { name: "Ceramide NP", role: "Barrier", match: 91, tone: "emerald" },
-        { name: "Azelaic Acid 10%", role: "Calm", match: 88, tone: "teal" },
-        { name: "Vitamin C 15%", role: "Antioxidant", match: 85, tone: "emerald" },
-        { name: "Peptide Complex", role: "Firm", match: 82, tone: "teal" },
-      ];
-      await client.query(
-        `
-        INSERT INTO skin_scans (user_id, overall_score, metrics, concerns, ingredients, summary, source)
-        VALUES ($1, 78, $2::jsonb, $3::jsonb, $4::jsonb, $5, 'seed')
-      `,
-        [
-          DEMO_USER_ID,
-          JSON.stringify(metrics),
-          JSON.stringify(concerns),
-          JSON.stringify(ingredients),
-          "Barrier and clarity improved; hydration and even tone still have room to grow this cycle.",
-        ]
-      );
-
-      await client.query(
-        `
-        INSERT INTO chat_messages (user_id, role, content) VALUES
-        ($1, 'ai', 'Your barrier score jumped this week — great recovery. Want me to tweak tonight''s routine for your humidity drop?'),
-        ($1, 'user', 'Yes, keep it simple. I only have 5 minutes PM.'),
-        ($1, 'ai', 'Done. Single gel cleanse, azelaic 3×/week, 2-min mask Sundays. Hydration should hit 80+ in ~10 days.')
-      `,
-        [DEMO_USER_ID]
-      );
-
-      await client.query(
-        `
-        INSERT INTO notifications (user_id, title, body) VALUES
-        ($1, 'Scan streak', 'You are on a 12-day scan streak — keep it going.'),
-        ($1, 'Routine tip', 'Wait 60s between serum and cream for better absorption.')
-      `,
-        [DEMO_USER_ID]
-      );
-    }
 
     console.log("Migration complete (Facelab schema).");
   } finally {
