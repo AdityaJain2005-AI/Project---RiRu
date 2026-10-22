@@ -1,6 +1,8 @@
 import type { ScanPayload } from "./scan-engine";
 import type { IngredientDetail } from "./ocr";
 
+import { productRecommendationText } from "./knowledge";
+
 export type ProductContext = {
   ingredients: string[];
   details: IngredientDetail[];
@@ -108,6 +110,10 @@ export function cosmetologistReply(
     return hits
       .map((d) => `${d.name}: ${d.function}. ${d.concern}${d.rating === "caution" ? " — go slow." : ""}`)
       .join("\n") + `\n\n${matchProductToSkin(scan, product)}`;
+  }
+
+  if (/recommend|suggest|which .*?(face ?wash|cleanser)|face ?wash|cleanser options|what should i buy/.test(t)) {
+    return `${productRecommendationText(userText)}\n\n${productBlurb(product)}`;
   }
 
   if (/ocr|label|inci|product|this cream|this serum|bottle|ingredient/.test(t)) {

@@ -1,0 +1,51 @@
+product_id,brand,product_name,category,skin_types,skin_concerns,key_ingredients,full_ingredients,size_ml_g,price_inr,spf_pa_label,ocr_text,source_url,data_status
+RIRU001,Minimalist,Salicylic Acid + LHA 2% Cleanser,cleanser,oily|combination,oiliness|blemish-prone skin,,,,,,Minimalist|Salicylic Acid + LHA 2% Cleanser,,starter_record_needs_verification
+RIRU002,Minimalist,Niacinamide 10% Face Serum,serum,oily|combination|normal,uneven-looking tone|oiliness,,,,,,Minimalist|Niacinamide 10% Face Serum,,starter_record_needs_verification
+RIRU003,Minimalist,Hyaluronic Acid 2% Serum,serum,dry|normal|combination,dehydration,,,,,,Minimalist|Hyaluronic Acid 2% Serum,,starter_record_needs_verification
+RIRU004,Minimalist,Vitamin C 10% Face Serum,serum,normal|dry|combination,dull-looking skin|uneven-looking tone,,,,,,Minimalist|Vitamin C 10% Face Serum,,starter_record_needs_verification
+RIRU005,Minimalist,Salicylic Acid 2% Face Serum,treatment,oily|combination,blemish-prone skin|blackheads,,,,,,Minimalist|Salicylic Acid 2% Face Serum,,starter_record_needs_verification
+RIRU006,Minimalist,Vitamin B5 10% Moisturizer,moisturizer,dry|normal|combination,dryness|skin barrier support,,,,,,Minimalist|Vitamin B5 10% Moisturizer,,starter_record_needs_verification
+RIRU007,Minimalist,SPF 50 Sunscreen,sunscreen,all,UV protection,,,,,,Minimalist|SPF 50 Sunscreen,,starter_record_needs_verification
+RIRU008,CeraVe,Hydrating Cleanser,cleanser,dry|normal|sensitive,dryness|cleansing,,,,,,CeraVe|Hydrating Cleanser,,starter_record_needs_verification
+RIRU009,CeraVe,Foaming Facial Cleanser,cleanser,oily|normal,oiliness|cleansing,,,,,,CeraVe|Foaming Facial Cleanser,,starter_record_needs_verification
+RIRU010,CeraVe,Moisturizing Cream,moisturizer,dry|normal,dryness|skin barrier support,,,,,,CeraVe|Moisturizing Cream,,starter_record_needs_verification
+RIRU011,CeraVe,AM Facial Moisturising Lotion SPF 30,moisturizer_sunscreen,normal|dry,moisturizing|UV protection,,,,,,CeraVe|AM Facial Moisturising Lotion SPF 30,,starter_record_needs_verification
+RIRU012,Neutrogena,Hydro Boost Water Gel,moisturizer,oily|combination|normal,dehydration,,,,,,Neutrogena|Hydro Boost Water Gel,,starter_record_needs_verification
+RIRU013,Neutrogena,Hydro Boost Cleanser Water Gel,cleanser,normal|combination,cleansing,,,,,,Neutrogena|Hydro Boost Cleanser Water Gel,,starter_record_needs_verification
+RIRU014,Neutrogena,Oil-Free Acne Wash,cleanser,oily,blemish-prone skin|oiliness,,,,,,Neutrogena|Oil-Free Acne Wash,,starter_record_needs_verification
+RIRU015,Neutrogena,Ultra Sheer Dry Touch Sunscreen SPF 50+,sunscreen,all,UV protection,,,,,,Neutrogena|Ultra Sheer Dry Touch Sunscreen SPF 50+,,starter_record_needs_verification
+RIRU016,The Ordinary,Niacinamide 10% + Zinc 1%,serum,oily|combination,oiliness|uneven-looking tone,,,,,,The Ordinary|Niacinamide 10% + Zinc 1%,,starter_record_needs_verification
+RIRU017,The Ordinary,Hyaluronic Acid 2% + B5,serum,dry|normal|combination,dehydration,,,,,,The Ordinary|Hyaluronic Acid 2% + B5,,starter_record_needs_verification
+RIRU018,The Ordinary,Natural Moisturizing Factors + HA,moisturizer,dry|normal,dryness,,,,,,The Ordinary|Natural Moisturizing Factors + HA,,starter_record_needs_verification
+RIRU019,The Ordinary,Salicylic Acid 2% Solution,treatment,oily|combination,blemish-prone skin|blackheads,,,,,,The Ordinary|Salicylic Acid 2% Solution,,starter_record_needs_verification
+RIRU020,The Ordinary,Azelaic Acid Suspension 10%,treatment,normal|combination|oily,uneven-looking tone,,,,,,The Ordinary|Azelaic Acid Suspension 10%,,starter_record_needs_verification
+RIRU021,POND'S,Super Light Gel Oil-Free Moisturiser,moisturizer,oily|combination,dehydration,,,,,,POND'S|Super Light Gel Oil-Free Moisturiser,,starter_record_needs_verification
+RIRU022,POND'S,Light Moisturiser,moisturizer,normal|dry,dryness,,,,,,POND'S|Light Moisturiser,,starter_record_needs_verification
+RIRU023,POND'S,Bright Beauty Face Wash,cleanser,normal|combination,cleansing|uneven-looking tone,,,,,,POND'S|Bright Beauty Face Wash,,starter_record_needs_verification
+RIRU024,The Derma Co,1% Salicylic Acid Gel Face Wash,cleanser,oily|combination,blemish-prone skin|oiliness,,,,,,The Derma Co|1% Salicylic Acid Gel Face Wash,,starter_record_needs_verification
+RIRU025,The Derma Co,10% Niacinamide Serum,serum,oily|combination,oiliness|uneven-looking tone,,,,,,The Derma Co|10% Niacinamide Serum,,starter_record_needs_verification
+RIRU026,The Derma Co,Hyaluronic Sunscreen SPF 50 PA++++,sunscreen,all,UV protection,,,,,,The Derma Co|Hyaluronic Sunscreen SPF 50 PA++++,,starter_record_needs_verification
+RIRU027,La Roche-Posay,Toleriane Hydrating Gentle Cleanser,cleanser,dry|normal|sensitive,cleansing|dryness,,,,,,La Roche-Posay|Toleriane Hydrating Gentle Cleanser,,starter_record_needs_verification
+RIRU028,La Roche-Posay,Effaclar Purifying Foaming Gel,cleanser,oily|combination,oiliness|cleansing,,,,,,La Roche-Posay|Effaclar Purifying Foaming Gel,,starter_record_needs_verification
+RIRU029,La Roche-Posay,Anthelios Sunscreen SPF 50+,sunscreen,all,UV protection,,,,,,La Roche-Posay|Anthelios Sunscreen SPF 50+,,starter_record_needs_verification
+RIRU030,Bioderma,Sensibio H2O Micellar Water,cleanser,normal|dry|sensitive,cleansing,,,,,,Bioderma|Sensibio H2O Micellar Water,,starter_record_needs_verification
+RIRU031,Bioderma,Atoderm Creme Ultra,moisturizer,dry|sensitive,dryness|skin barrier support,,,,,,Bioderma|Atoderm Creme Ultra,,starter_record_needs_verification
+RIRU032,Cetaphil,Gentle Skin Cleanser,cleanser,dry|normal|sensitive,cleansing|dryness,,,,,,Cetaphil|Gentle Skin Cleanser,,starter_record_needs_verification
+RIRU033,Cetaphil,Moisturising Cream,moisturizer,dry|sensitive,dryness|skin barrier support,,,,,,Cetaphil|Moisturising Cream,,starter_record_needs_verification
+RIRU034,Cetaphil,Oily Skin Cleanser,cleanser,oily|combination,oiliness|cleansing,,,,,,Cetaphil|Oily Skin Cleanser,,starter_record_needs_verification
+RIRU035,COSRX,Low pH Good Morning Gel Cleanser,cleanser,oily|combination,cleansing|oiliness,,,,,,COSRX|Low pH Good Morning Gel Cleanser,,starter_record_needs_verification
+RIRU036,COSRX,Advanced Snail 96 Mucin Power Essence,essence,dry|normal|combination,dehydration,,,,,,COSRX|Advanced Snail 96 Mucin Power Essence,,starter_record_needs_verification
+RIRU037,COSRX,Oil-Free Ultra-Moisturizing Lotion,moisturizer,oily|combination|normal,dehydration,,,,,,COSRX|Oil-Free Ultra-Moisturizing Lotion,,starter_record_needs_verification
+RIRU038,Beauty of Joseon,Relief Sun SPF50+ PA++++,sunscreen,all,UV protection,,,,,,Beauty of Joseon|Relief Sun SPF50+ PA++++,,starter_record_needs_verification
+RIRU039,Beauty of Joseon,Glow Serum Propolis + Niacinamide,serum,normal|combination|oily,uneven-looking tone|oiliness,,,,,,Beauty of Joseon|Glow Serum Propolis + Niacinamide,,starter_record_needs_verification
+RIRU040,Isntree,Hyaluronic Acid Watery Sun Gel SPF50+ PA++++,sunscreen,all,UV protection,,,,,,Isntree|Hyaluronic Acid Watery Sun Gel SPF50+ PA++++,,starter_record_needs_verification
+RIRU041,Avène,Cicalfate+ Restorative Protective Cream,moisturizer,dry|sensitive,dryness|skin barrier support,,,,,,Avène|Cicalfate+ Restorative Protective Cream,,starter_record_needs_verification
+RIRU042,Avène,Cleanance Cleansing Gel,cleanser,oily|combination,oiliness|cleansing,,,,,,Avène|Cleanance Cleansing Gel,,starter_record_needs_verification
+RIRU043,Eucerin,Advanced Repair Cream,moisturizer,dry,dryness,,,,,,Eucerin|Advanced Repair Cream,,starter_record_needs_verification
+RIRU044,Eucerin,Oil Control Sun Gel-Cream SPF 50+,sunscreen,oily|combination,UV protection|oiliness,,,,,,Eucerin|Oil Control Sun Gel-Cream SPF 50+,,starter_record_needs_verification
+RIRU045,Simple,Kind to Skin Refreshing Facial Wash,cleanser,normal|combination|sensitive,cleansing,,,,,,Simple|Kind to Skin Refreshing Facial Wash,,starter_record_needs_verification
+RIRU046,Simple,Hydrating Light Moisturiser,moisturizer,normal|combination,dehydration,,,,,,Simple|Hydrating Light Moisturiser,,starter_record_needs_verification
+RIRU047,Plum,Green Tea Pore Cleansing Face Wash,cleanser,oily|combination,oiliness|cleansing,,,,,,Plum|Green Tea Pore Cleansing Face Wash,,starter_record_needs_verification
+RIRU048,Plum,2% Niacinamide Face Serum,serum,oily|combination,oiliness|uneven-looking tone,,,,,,Plum|2% Niacinamide Face Serum,,starter_record_needs_verification
+RIRU049,Dot & Key,Watermelon Cooling Sunscreen SPF 50 PA++++,sunscreen,all,UV protection,,,,,,Dot & Key|Watermelon Cooling Sunscreen SPF 50 PA++++,,starter_record_needs_verification
+RIRU050,Fixderma,Shadow SPF 50+ Gel,sunscreen,oily|combination,UV protection,,,,,,Fixderma|Shadow SPF 50+ Gel,,starter_record_needs_verification

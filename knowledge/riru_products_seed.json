@@ -1,0 +1,1636 @@
+[
+  {
+    "record_type": "product",
+    "product_id": "RIRU001",
+    "brand": "Minimalist",
+    "product_name": "Salicylic Acid + LHA 2% Cleanser",
+    "aliases": [
+      "salicylic acid + lha 2% cleanser",
+      "minimalist salicylic acid + lha 2% cleanser"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "blemish-prone skin"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Minimalist",
+      "Salicylic Acid + LHA 2% Cleanser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU002",
+    "brand": "Minimalist",
+    "product_name": "Niacinamide 10% Face Serum",
+    "aliases": [
+      "niacinamide 10% face serum",
+      "minimalist niacinamide 10% face serum"
+    ],
+    "category": "serum",
+    "skin_types": [
+      "oily",
+      "combination",
+      "normal"
+    ],
+    "skin_concerns": [
+      "uneven-looking tone",
+      "oiliness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Minimalist",
+      "Niacinamide 10% Face Serum"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU003",
+    "brand": "Minimalist",
+    "product_name": "Hyaluronic Acid 2% Serum",
+    "aliases": [
+      "hyaluronic acid 2% serum",
+      "minimalist hyaluronic acid 2% serum"
+    ],
+    "category": "serum",
+    "skin_types": [
+      "dry",
+      "normal",
+      "combination"
+    ],
+    "skin_concerns": [
+      "dehydration"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Minimalist",
+      "Hyaluronic Acid 2% Serum"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU004",
+    "brand": "Minimalist",
+    "product_name": "Vitamin C 10% Face Serum",
+    "aliases": [
+      "vitamin c 10% face serum",
+      "minimalist vitamin c 10% face serum"
+    ],
+    "category": "serum",
+    "skin_types": [
+      "normal",
+      "dry",
+      "combination"
+    ],
+    "skin_concerns": [
+      "dull-looking skin",
+      "uneven-looking tone"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Minimalist",
+      "Vitamin C 10% Face Serum"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU005",
+    "brand": "Minimalist",
+    "product_name": "Salicylic Acid 2% Face Serum",
+    "aliases": [
+      "salicylic acid 2% face serum",
+      "minimalist salicylic acid 2% face serum"
+    ],
+    "category": "treatment",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "blemish-prone skin",
+      "blackheads"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Minimalist",
+      "Salicylic Acid 2% Face Serum"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU006",
+    "brand": "Minimalist",
+    "product_name": "Vitamin B5 10% Moisturizer",
+    "aliases": [
+      "vitamin b5 10% moisturizer",
+      "minimalist vitamin b5 10% moisturizer"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "dry",
+      "normal",
+      "combination"
+    ],
+    "skin_concerns": [
+      "dryness",
+      "skin barrier support"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Minimalist",
+      "Vitamin B5 10% Moisturizer"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU007",
+    "brand": "Minimalist",
+    "product_name": "SPF 50 Sunscreen",
+    "aliases": [
+      "spf 50 sunscreen",
+      "minimalist spf 50 sunscreen"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "all"
+    ],
+    "skin_concerns": [
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Minimalist",
+      "SPF 50 Sunscreen"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU008",
+    "brand": "CeraVe",
+    "product_name": "Hydrating Cleanser",
+    "aliases": [
+      "hydrating cleanser",
+      "cerave hydrating cleanser"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "dry",
+      "normal",
+      "sensitive"
+    ],
+    "skin_concerns": [
+      "dryness",
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "CeraVe",
+      "Hydrating Cleanser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU009",
+    "brand": "CeraVe",
+    "product_name": "Foaming Facial Cleanser",
+    "aliases": [
+      "foaming facial cleanser",
+      "cerave foaming facial cleanser"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily",
+      "normal"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "CeraVe",
+      "Foaming Facial Cleanser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU010",
+    "brand": "CeraVe",
+    "product_name": "Moisturizing Cream",
+    "aliases": [
+      "moisturizing cream",
+      "cerave moisturizing cream"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "dry",
+      "normal"
+    ],
+    "skin_concerns": [
+      "dryness",
+      "skin barrier support"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "CeraVe",
+      "Moisturizing Cream"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU011",
+    "brand": "CeraVe",
+    "product_name": "AM Facial Moisturising Lotion SPF 30",
+    "aliases": [
+      "am facial moisturising lotion spf 30",
+      "cerave am facial moisturising lotion spf 30"
+    ],
+    "category": "moisturizer_sunscreen",
+    "skin_types": [
+      "normal",
+      "dry"
+    ],
+    "skin_concerns": [
+      "moisturizing",
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "CeraVe",
+      "AM Facial Moisturising Lotion SPF 30"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU012",
+    "brand": "Neutrogena",
+    "product_name": "Hydro Boost Water Gel",
+    "aliases": [
+      "hydro boost water gel",
+      "neutrogena hydro boost water gel"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "oily",
+      "combination",
+      "normal"
+    ],
+    "skin_concerns": [
+      "dehydration"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Neutrogena",
+      "Hydro Boost Water Gel"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU013",
+    "brand": "Neutrogena",
+    "product_name": "Hydro Boost Cleanser Water Gel",
+    "aliases": [
+      "hydro boost cleanser water gel",
+      "neutrogena hydro boost cleanser water gel"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "normal",
+      "combination"
+    ],
+    "skin_concerns": [
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Neutrogena",
+      "Hydro Boost Cleanser Water Gel"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU014",
+    "brand": "Neutrogena",
+    "product_name": "Oil-Free Acne Wash",
+    "aliases": [
+      "oil-free acne wash",
+      "neutrogena oil-free acne wash"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily"
+    ],
+    "skin_concerns": [
+      "blemish-prone skin",
+      "oiliness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Neutrogena",
+      "Oil-Free Acne Wash"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU015",
+    "brand": "Neutrogena",
+    "product_name": "Ultra Sheer Dry Touch Sunscreen SPF 50+",
+    "aliases": [
+      "ultra sheer dry touch sunscreen spf 50+",
+      "neutrogena ultra sheer dry touch sunscreen spf 50+"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "all"
+    ],
+    "skin_concerns": [
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Neutrogena",
+      "Ultra Sheer Dry Touch Sunscreen SPF 50+"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU016",
+    "brand": "The Ordinary",
+    "product_name": "Niacinamide 10% + Zinc 1%",
+    "aliases": [
+      "niacinamide 10% + zinc 1%",
+      "the ordinary niacinamide 10% + zinc 1%"
+    ],
+    "category": "serum",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "uneven-looking tone"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "The Ordinary",
+      "Niacinamide 10% + Zinc 1%"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU017",
+    "brand": "The Ordinary",
+    "product_name": "Hyaluronic Acid 2% + B5",
+    "aliases": [
+      "hyaluronic acid 2% + b5",
+      "the ordinary hyaluronic acid 2% + b5"
+    ],
+    "category": "serum",
+    "skin_types": [
+      "dry",
+      "normal",
+      "combination"
+    ],
+    "skin_concerns": [
+      "dehydration"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "The Ordinary",
+      "Hyaluronic Acid 2% + B5"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU018",
+    "brand": "The Ordinary",
+    "product_name": "Natural Moisturizing Factors + HA",
+    "aliases": [
+      "natural moisturizing factors + ha",
+      "the ordinary natural moisturizing factors + ha"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "dry",
+      "normal"
+    ],
+    "skin_concerns": [
+      "dryness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "The Ordinary",
+      "Natural Moisturizing Factors + HA"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU019",
+    "brand": "The Ordinary",
+    "product_name": "Salicylic Acid 2% Solution",
+    "aliases": [
+      "salicylic acid 2% solution",
+      "the ordinary salicylic acid 2% solution"
+    ],
+    "category": "treatment",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "blemish-prone skin",
+      "blackheads"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "The Ordinary",
+      "Salicylic Acid 2% Solution"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU020",
+    "brand": "The Ordinary",
+    "product_name": "Azelaic Acid Suspension 10%",
+    "aliases": [
+      "azelaic acid suspension 10%",
+      "the ordinary azelaic acid suspension 10%"
+    ],
+    "category": "treatment",
+    "skin_types": [
+      "normal",
+      "combination",
+      "oily"
+    ],
+    "skin_concerns": [
+      "uneven-looking tone"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "The Ordinary",
+      "Azelaic Acid Suspension 10%"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU021",
+    "brand": "POND'S",
+    "product_name": "Super Light Gel Oil-Free Moisturiser",
+    "aliases": [
+      "super light gel oil-free moisturiser",
+      "pond's super light gel oil-free moisturiser"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "dehydration"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "POND'S",
+      "Super Light Gel Oil-Free Moisturiser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU022",
+    "brand": "POND'S",
+    "product_name": "Light Moisturiser",
+    "aliases": [
+      "light moisturiser",
+      "pond's light moisturiser"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "normal",
+      "dry"
+    ],
+    "skin_concerns": [
+      "dryness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "POND'S",
+      "Light Moisturiser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU023",
+    "brand": "POND'S",
+    "product_name": "Bright Beauty Face Wash",
+    "aliases": [
+      "bright beauty face wash",
+      "pond's bright beauty face wash"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "normal",
+      "combination"
+    ],
+    "skin_concerns": [
+      "cleansing",
+      "uneven-looking tone"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "POND'S",
+      "Bright Beauty Face Wash"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU024",
+    "brand": "The Derma Co",
+    "product_name": "1% Salicylic Acid Gel Face Wash",
+    "aliases": [
+      "1% salicylic acid gel face wash",
+      "the derma co 1% salicylic acid gel face wash"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "blemish-prone skin",
+      "oiliness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "The Derma Co",
+      "1% Salicylic Acid Gel Face Wash"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU025",
+    "brand": "The Derma Co",
+    "product_name": "10% Niacinamide Serum",
+    "aliases": [
+      "10% niacinamide serum",
+      "the derma co 10% niacinamide serum"
+    ],
+    "category": "serum",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "uneven-looking tone"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "The Derma Co",
+      "10% Niacinamide Serum"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU026",
+    "brand": "The Derma Co",
+    "product_name": "Hyaluronic Sunscreen SPF 50 PA++++",
+    "aliases": [
+      "hyaluronic sunscreen spf 50 pa++++",
+      "the derma co hyaluronic sunscreen spf 50 pa++++"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "all"
+    ],
+    "skin_concerns": [
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "The Derma Co",
+      "Hyaluronic Sunscreen SPF 50 PA++++"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU027",
+    "brand": "La Roche-Posay",
+    "product_name": "Toleriane Hydrating Gentle Cleanser",
+    "aliases": [
+      "toleriane hydrating gentle cleanser",
+      "la roche-posay toleriane hydrating gentle cleanser"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "dry",
+      "normal",
+      "sensitive"
+    ],
+    "skin_concerns": [
+      "cleansing",
+      "dryness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "La Roche-Posay",
+      "Toleriane Hydrating Gentle Cleanser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU028",
+    "brand": "La Roche-Posay",
+    "product_name": "Effaclar Purifying Foaming Gel",
+    "aliases": [
+      "effaclar purifying foaming gel",
+      "la roche-posay effaclar purifying foaming gel"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "La Roche-Posay",
+      "Effaclar Purifying Foaming Gel"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU029",
+    "brand": "La Roche-Posay",
+    "product_name": "Anthelios Sunscreen SPF 50+",
+    "aliases": [
+      "anthelios sunscreen spf 50+",
+      "la roche-posay anthelios sunscreen spf 50+"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "all"
+    ],
+    "skin_concerns": [
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "La Roche-Posay",
+      "Anthelios Sunscreen SPF 50+"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU030",
+    "brand": "Bioderma",
+    "product_name": "Sensibio H2O Micellar Water",
+    "aliases": [
+      "sensibio h2o micellar water",
+      "bioderma sensibio h2o micellar water"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "normal",
+      "dry",
+      "sensitive"
+    ],
+    "skin_concerns": [
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Bioderma",
+      "Sensibio H2O Micellar Water"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU031",
+    "brand": "Bioderma",
+    "product_name": "Atoderm Creme Ultra",
+    "aliases": [
+      "atoderm creme ultra",
+      "bioderma atoderm creme ultra"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "dry",
+      "sensitive"
+    ],
+    "skin_concerns": [
+      "dryness",
+      "skin barrier support"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Bioderma",
+      "Atoderm Creme Ultra"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU032",
+    "brand": "Cetaphil",
+    "product_name": "Gentle Skin Cleanser",
+    "aliases": [
+      "gentle skin cleanser",
+      "cetaphil gentle skin cleanser"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "dry",
+      "normal",
+      "sensitive"
+    ],
+    "skin_concerns": [
+      "cleansing",
+      "dryness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Cetaphil",
+      "Gentle Skin Cleanser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU033",
+    "brand": "Cetaphil",
+    "product_name": "Moisturising Cream",
+    "aliases": [
+      "moisturising cream",
+      "cetaphil moisturising cream"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "dry",
+      "sensitive"
+    ],
+    "skin_concerns": [
+      "dryness",
+      "skin barrier support"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Cetaphil",
+      "Moisturising Cream"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU034",
+    "brand": "Cetaphil",
+    "product_name": "Oily Skin Cleanser",
+    "aliases": [
+      "oily skin cleanser",
+      "cetaphil oily skin cleanser"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Cetaphil",
+      "Oily Skin Cleanser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU035",
+    "brand": "COSRX",
+    "product_name": "Low pH Good Morning Gel Cleanser",
+    "aliases": [
+      "low ph good morning gel cleanser",
+      "cosrx low ph good morning gel cleanser"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "cleansing",
+      "oiliness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "COSRX",
+      "Low pH Good Morning Gel Cleanser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU036",
+    "brand": "COSRX",
+    "product_name": "Advanced Snail 96 Mucin Power Essence",
+    "aliases": [
+      "advanced snail 96 mucin power essence",
+      "cosrx advanced snail 96 mucin power essence"
+    ],
+    "category": "essence",
+    "skin_types": [
+      "dry",
+      "normal",
+      "combination"
+    ],
+    "skin_concerns": [
+      "dehydration"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "COSRX",
+      "Advanced Snail 96 Mucin Power Essence"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU037",
+    "brand": "COSRX",
+    "product_name": "Oil-Free Ultra-Moisturizing Lotion",
+    "aliases": [
+      "oil-free ultra-moisturizing lotion",
+      "cosrx oil-free ultra-moisturizing lotion"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "oily",
+      "combination",
+      "normal"
+    ],
+    "skin_concerns": [
+      "dehydration"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "COSRX",
+      "Oil-Free Ultra-Moisturizing Lotion"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU038",
+    "brand": "Beauty of Joseon",
+    "product_name": "Relief Sun SPF50+ PA++++",
+    "aliases": [
+      "relief sun spf50+ pa++++",
+      "beauty of joseon relief sun spf50+ pa++++"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "all"
+    ],
+    "skin_concerns": [
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Beauty of Joseon",
+      "Relief Sun SPF50+ PA++++"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU039",
+    "brand": "Beauty of Joseon",
+    "product_name": "Glow Serum Propolis + Niacinamide",
+    "aliases": [
+      "glow serum propolis + niacinamide",
+      "beauty of joseon glow serum propolis + niacinamide"
+    ],
+    "category": "serum",
+    "skin_types": [
+      "normal",
+      "combination",
+      "oily"
+    ],
+    "skin_concerns": [
+      "uneven-looking tone",
+      "oiliness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Beauty of Joseon",
+      "Glow Serum Propolis + Niacinamide"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU040",
+    "brand": "Isntree",
+    "product_name": "Hyaluronic Acid Watery Sun Gel SPF50+ PA++++",
+    "aliases": [
+      "hyaluronic acid watery sun gel spf50+ pa++++",
+      "isntree hyaluronic acid watery sun gel spf50+ pa++++"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "all"
+    ],
+    "skin_concerns": [
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Isntree",
+      "Hyaluronic Acid Watery Sun Gel SPF50+ PA++++"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU041",
+    "brand": "Av\u00e8ne",
+    "product_name": "Cicalfate+ Restorative Protective Cream",
+    "aliases": [
+      "cicalfate+ restorative protective cream",
+      "av\u00e8ne cicalfate+ restorative protective cream"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "dry",
+      "sensitive"
+    ],
+    "skin_concerns": [
+      "dryness",
+      "skin barrier support"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Av\u00e8ne",
+      "Cicalfate+ Restorative Protective Cream"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU042",
+    "brand": "Av\u00e8ne",
+    "product_name": "Cleanance Cleansing Gel",
+    "aliases": [
+      "cleanance cleansing gel",
+      "av\u00e8ne cleanance cleansing gel"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Av\u00e8ne",
+      "Cleanance Cleansing Gel"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU043",
+    "brand": "Eucerin",
+    "product_name": "Advanced Repair Cream",
+    "aliases": [
+      "advanced repair cream",
+      "eucerin advanced repair cream"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "dry"
+    ],
+    "skin_concerns": [
+      "dryness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Eucerin",
+      "Advanced Repair Cream"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU044",
+    "brand": "Eucerin",
+    "product_name": "Oil Control Sun Gel-Cream SPF 50+",
+    "aliases": [
+      "oil control sun gel-cream spf 50+",
+      "eucerin oil control sun gel-cream spf 50+"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "UV protection",
+      "oiliness"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Eucerin",
+      "Oil Control Sun Gel-Cream SPF 50+"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU045",
+    "brand": "Simple",
+    "product_name": "Kind to Skin Refreshing Facial Wash",
+    "aliases": [
+      "kind to skin refreshing facial wash",
+      "simple kind to skin refreshing facial wash"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "normal",
+      "combination",
+      "sensitive"
+    ],
+    "skin_concerns": [
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Simple",
+      "Kind to Skin Refreshing Facial Wash"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU046",
+    "brand": "Simple",
+    "product_name": "Hydrating Light Moisturiser",
+    "aliases": [
+      "hydrating light moisturiser",
+      "simple hydrating light moisturiser"
+    ],
+    "category": "moisturizer",
+    "skin_types": [
+      "normal",
+      "combination"
+    ],
+    "skin_concerns": [
+      "dehydration"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Simple",
+      "Hydrating Light Moisturiser"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU047",
+    "brand": "Plum",
+    "product_name": "Green Tea Pore Cleansing Face Wash",
+    "aliases": [
+      "green tea pore cleansing face wash",
+      "plum green tea pore cleansing face wash"
+    ],
+    "category": "cleanser",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "cleansing"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Plum",
+      "Green Tea Pore Cleansing Face Wash"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU048",
+    "brand": "Plum",
+    "product_name": "2% Niacinamide Face Serum",
+    "aliases": [
+      "2% niacinamide face serum",
+      "plum 2% niacinamide face serum"
+    ],
+    "category": "serum",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "oiliness",
+      "uneven-looking tone"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Plum",
+      "2% Niacinamide Face Serum"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU049",
+    "brand": "Dot & Key",
+    "product_name": "Watermelon Cooling Sunscreen SPF 50 PA++++",
+    "aliases": [
+      "watermelon cooling sunscreen spf 50 pa++++",
+      "dot & key watermelon cooling sunscreen spf 50 pa++++"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "all"
+    ],
+    "skin_concerns": [
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Dot & Key",
+      "Watermelon Cooling Sunscreen SPF 50 PA++++"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  },
+  {
+    "record_type": "product",
+    "product_id": "RIRU050",
+    "brand": "Fixderma",
+    "product_name": "Shadow SPF 50+ Gel",
+    "aliases": [
+      "shadow spf 50+ gel",
+      "fixderma shadow spf 50+ gel"
+    ],
+    "category": "sunscreen",
+    "skin_types": [
+      "oily",
+      "combination"
+    ],
+    "skin_concerns": [
+      "UV protection"
+    ],
+    "key_ingredients": null,
+    "full_ingredients": null,
+    "size_ml_g": null,
+    "price_inr": null,
+    "spf_pa_label": null,
+    "directions": null,
+    "cautions": [],
+    "ocr_text": [
+      "Fixderma",
+      "Shadow SPF 50+ Gel"
+    ],
+    "source_url": null,
+    "data_status": "starter_record_needs_verification",
+    "notes": "Verify exact variant, ingredient list, size, claims, directions and availability from the manufacturer's current label/page before production use."
+  }
+]

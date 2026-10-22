@@ -2,6 +2,7 @@ import { cosmetologistReply, chatSystemPrompt, type ProductContext } from "@/lib
 import { DEMO_USER_ID, query } from "@/lib/db";
 import type { ScanPayload } from "@/lib/scan-engine";
 import { explainIngredients, extractChatIngredients, type IngredientDetail } from "@/lib/ocr";
+import { productRecommendationText } from "@/lib/knowledge";
 
 export const dynamic = "force-dynamic";
 
@@ -117,7 +118,7 @@ export async function POST(req: Request) {
             messages: [
               {
                 role: "system",
-                content: chatSystemPrompt(scan, product),
+                content: `${chatSystemPrompt(scan, product)}\n\n${/recommend|suggest|face ?wash|cleanser|what should i buy/i.test(text) ? productRecommendationText(text) : ""}`,
               },
               {
                 role: "user",

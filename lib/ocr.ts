@@ -1,8 +1,18 @@
+import { lookupIngredientKnowledge } from "./knowledge";
+
 export type IngredientDetail = {
   name: string;
   function: string;
   concern: string;
   rating: "good" | "neutral" | "caution";
+  category?: string;
+  benefits?: string[];
+  skinTypes?: string[];
+  irritationRisk?: string;
+  chemicalReactivity?: string;
+  phNotes?: string;
+  compatibilityNotes?: string;
+  comedogenicity?: string;
 };
 
 const KNOWN: Record<string, Omit<IngredientDetail, "name">> = {
@@ -106,6 +116,30 @@ export function cleanIngredients(text: string): string[] {
 
 export function explainIngredients(names: string[]): IngredientDetail[] {
   return names.map((name) => {
+    const dataset = lookupIngredientKnowledge(name);
+    if (dataset) {
+      const risk = dataset.irritation_risk.toLowerCase();
+      const rating = risk.includes("high")
+        ? "caution"
+        : risk.includes("medium")
+          ? "neutral"
+          : "good";
+      return {
+        name,
+        function: `${dataset.category} — ${dataset.benefits.join(", ")}`,
+        concern: dataset.compatibility_notes,
+        rating: rating as IngredientDetail["rating"],
+        category: dataset.category,
+        benefits: dataset.benefits,
+        skinTypes: dataset.skin_types,
+        irritationRisk: dataset.irritation_risk,
+        chemicalReactivity: dataset.chemical_reactivity,
+        phNotes: dataset.ph_notes,
+        compatibilityNotes: dataset.compatibility_notes,
+        comedogenicity: dataset.comedogenicity,
+      };
+    }
+
     const key = normalizeName(name);
     const hit =
       KNOWN[key] ||
